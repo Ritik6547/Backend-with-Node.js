@@ -1,0 +1,1 @@
+Node.js is a single-threaded, event-driven, non-blocking, asynchronous I/O runtime that allows developers to build scalable and high-performance applications, particularly suited for I/O-bound tasks such as file handling and network requests.
