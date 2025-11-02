@@ -1,48 +1,63 @@
 import { open, readdir } from "node:fs/promises";
 import http from "node:http";
 import mime from "mime-types";
+import { createWriteStream } from "node:fs";
 
 const server = http.createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
 
-  if (req.url === "/favicon.ico") return res.end("No favicon");
+  console.log(req.method);
 
-  console.log(req.url);
-  if (req.url === "/") {
-    serveDirectory(req, res);
-  } else {
-    try {
-      const [url, queryString] = req.url.split("?");
-      const queryParams = {};
-      queryString?.split("&").forEach((param) => {
-        const [key, val] = param.split("=");
-        queryParams[key] = val;
-      });
+  if (req.method === "GET") {
+    if (req.url === "/favicon.ico") return res.end("No favicon");
 
-      const reqUrl = decodeURIComponent(url);
-      const fileHandle = await open(`./storage${reqUrl}`);
-      const stats = await fileHandle.stat();
-      if (stats.isDirectory()) {
-        serveDirectory(req, res);
-      } else {
-        const readStream = fileHandle.createReadStream();
-        let type = mime.contentType(reqUrl.slice(1));
-        if (type === "application/mp4") type = "video/mp4";
-        res.setHeader("Content-Type", type);
-        res.setHeader("Content-Length", stats.size);
+    console.log(req.url);
+    if (req.url === "/") {
+      serveDirectory(req, res);
+    } else {
+      try {
+        const [url, queryString] = req.url.split("?");
+        const queryParams = {};
+        queryString?.split("&").forEach((param) => {
+          const [key, val] = param.split("=");
+          queryParams[key] = val;
+        });
 
-        if (queryParams.action === "download") {
-          res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="${url.slice(1)}"`
-          );
+        const reqUrl = decodeURIComponent(url);
+        const fileHandle = await open(`./storage${reqUrl}`);
+        const stats = await fileHandle.stat();
+        if (stats.isDirectory()) {
+          serveDirectory(req, res);
+        } else {
+          const readStream = fileHandle.createReadStream();
+          let type = mime.contentType(reqUrl.slice(1));
+          if (type === "application/mp4") type = "video/mp4";
+          res.setHeader("Content-Type", type);
+          res.setHeader("Content-Length", stats.size);
+
+          if (queryParams.action === "download") {
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="${url.slice(1)}"`
+            );
+          }
+          readStream.pipe(res);
         }
-        readStream.pipe(res);
+      } catch (err) {
+        console.log(err.message);
+        res.end("Not Found");
       }
-    } catch (err) {
-      console.log(err.message);
-      res.end("Not Found");
     }
+  } else if (req.method === "OPTIONS") {
+    res.end("OK");
+  } else if (req.method === "POST") {
+    const writeStream = createWriteStream(`./storage/${req.headers.filename}`);
+    req.pipe(writeStream);
+
+    req.on("end", () => {
+      res.end(JSON.stringify({ data: "File Uploaded Successfully" }));
+    });
   }
 });
 
