@@ -4,9 +4,21 @@ const App = () => {
   const [directoryItems, setDirectoryItems] = useState([]);
   const [progress, setProgress] = useState(0);
   const [isUploadStart, setIsUploadStart] = useState(false);
+  const [newFilename, setNewFilename] = useState("");
 
-  const handleRename = () => {
-    console.log("Rename");
+  const handleRename = (oldFilename) => {
+    setNewFilename(oldFilename);
+  };
+  const handleSave = async (oldFilename) => {
+    console.log({ oldFilename, newFilename });
+
+    const response = await fetch("http://10.134.244.171:4000/", {
+      method: "PATCH",
+      body: JSON.stringify({ oldFilename, newFilename }),
+    });
+    const data = await response.json();
+    console.log(data);
+    setNewFilename("");
   };
 
   const handleDelete = async (filename) => {
@@ -48,6 +60,12 @@ const App = () => {
     <div>
       <h1>My Files</h1>
       <input type="file" onChange={handleFileUpload} />
+      <br />
+      <input
+        type="text"
+        value={newFilename}
+        onChange={(e) => setNewFilename(e.target.value)}
+      />
       {isUploadStart && <p>{`File uploaded : ${progress}%`}</p>}
       {directoryItems.map((item, i) => {
         return (
@@ -57,7 +75,8 @@ const App = () => {
             <a href={`http://10.134.244.171:4000/${item}?action=download`}>
               Download{" "}
             </a>
-            <button onClick={handleRename}>Rename</button>
+            <button onClick={() => handleRename(item)}>Rename</button>
+            <button onClick={() => handleSave(item)}>Save</button>
             <button onClick={() => handleDelete(item)}>Delete</button>
           </div>
         );
