@@ -1,4 +1,4 @@
-import { open, readdir } from "node:fs/promises";
+import { open, readdir, unlink, rm } from "node:fs/promises";
 import http from "node:http";
 import mime from "mime-types";
 import { createWriteStream } from "node:fs";
@@ -6,6 +6,7 @@ import { createWriteStream } from "node:fs";
 const server = http.createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "*");
 
   console.log(req.method);
 
@@ -57,6 +58,20 @@ const server = http.createServer(async (req, res) => {
 
     req.on("end", () => {
       res.end(JSON.stringify({ data: "File Uploaded Successfully" }));
+    });
+  } else if (req.method === "DELETE") {
+    let filename;
+
+    req.on("data", (chunk) => {
+      filename = chunk.toString();
+    });
+    req.on("end", async () => {
+      try {
+        await rm(`./storage/${filename}`);
+        res.end(JSON.stringify({ msg: "deleted" }));
+      } catch (err) {
+        res.end(JSON.stringify({ msg: "File not found" }));
+      }
     });
   }
 });

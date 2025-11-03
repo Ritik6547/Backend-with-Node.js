@@ -3,9 +3,24 @@ import { useEffect, useState } from "react";
 const App = () => {
   const [directoryItems, setDirectoryItems] = useState([]);
   const [progress, setProgress] = useState(0);
+  const [isUploadStart, setIsUploadStart] = useState(false);
+
+  const handleRename = () => {
+    console.log("Rename");
+  };
+
+  const handleDelete = async (filename) => {
+    const response = await fetch("http://10.134.244.171:4000/", {
+      method: "DELETE",
+      body: filename,
+    });
+    const data = await response.json();
+    console.log(data);
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
+    setIsUploadStart(true);
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "http://10.134.244.171:4000/", true);
@@ -33,7 +48,7 @@ const App = () => {
     <div>
       <h1>My Files</h1>
       <input type="file" onChange={handleFileUpload} />
-      <p>{`File uploaded : ${progress}%`}</p>
+      {isUploadStart && <p>{`File uploaded : ${progress}%`}</p>}
       {directoryItems.map((item, i) => {
         return (
           <div key={i}>
@@ -42,6 +57,8 @@ const App = () => {
             <a href={`http://10.134.244.171:4000/${item}?action=download`}>
               Download{" "}
             </a>
+            <button onClick={handleRename}>Rename</button>
+            <button onClick={() => handleDelete(item)}>Delete</button>
           </div>
         );
       })}
