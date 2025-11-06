@@ -20,6 +20,7 @@ const App = () => {
     });
     const data = await response.json();
     console.log(data);
+    getDirectoryItems();
     setNewFilename("");
   };
 
@@ -29,6 +30,7 @@ const App = () => {
     });
     const data = await response.json();
     console.log(data);
+    getDirectoryItems();
   };
 
   const handleFileUpload = (e) => {
@@ -36,10 +38,10 @@ const App = () => {
     setIsUploadStart(true);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", URL, true);
-    xhr.setRequestHeader("filename", file.name);
+    xhr.open("POST", `${URL}${file.name}`, true);
     xhr.addEventListener("load", () => {
       console.log(xhr.response);
+      getDirectoryItems();
     });
     xhr.upload.addEventListener("progress", (e) => {
       const totalProgress = (e.loaded / e.total) * 100;
@@ -49,12 +51,14 @@ const App = () => {
     xhr.send(file);
   };
 
+  async function getDirectoryItems() {
+    const response = await fetch(URL);
+    const data = await response.json();
+    setDirectoryItems(data);
+  }
+
   useEffect(() => {
-    (async function getDirectoryItems() {
-      const response = await fetch(URL);
-      const data = await response.json();
-      setDirectoryItems(data);
-    })();
+    getDirectoryItems();
   }, []);
 
   return (
