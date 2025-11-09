@@ -7,9 +7,9 @@ const DirectoryView = () => {
   const [progress, setProgress] = useState(0);
   const [isUploadStart, setIsUploadStart] = useState(false);
   const [newFilename, setNewFilename] = useState("");
+  const [newDirname, setNewDirname] = useState("");
   const [error, setError] = useState(null);
   const { "*": dirPath } = useParams();
-  console.log(dirPath);
 
   const handleRename = (oldFilename) => {
     setNewFilename(oldFilename);
@@ -32,9 +32,12 @@ const DirectoryView = () => {
   };
 
   const handleDelete = async (filename) => {
-    const response = await fetch(`${BASE_URL}/files/${filename}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `${BASE_URL}/files${dirPath && "/" + dirPath}/${filename}`,
+      {
+        method: "DELETE",
+      }
+    );
     const data = await response.json();
     console.log(data);
     getDirectoryItems();
@@ -45,7 +48,11 @@ const DirectoryView = () => {
     setIsUploadStart(true);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${BASE_URL}/files/${file.name}`, true);
+    xhr.open(
+      "POST",
+      `${BASE_URL}/files${dirPath && "/" + dirPath}/${file.name}`,
+      true
+    );
     xhr.addEventListener("load", () => {
       console.log(xhr.response);
       getDirectoryItems();
@@ -58,6 +65,20 @@ const DirectoryView = () => {
     xhr.send(file);
   };
 
+  const handleCreateDirectory = async (e) => {
+    e.preventDefault();
+    const response = await fetch(
+      `${BASE_URL}/directory${dirPath && "/" + dirPath}/${newDirname}`,
+      {
+        method: "POST",
+      }
+    );
+    const data = await response.json();
+    setNewDirname("");
+    console.log(data);
+    getDirectoryItems();
+  };
+
   async function getDirectoryItems() {
     setError(null);
     const response = await fetch(`${BASE_URL}/directory/${dirPath}`);
@@ -65,7 +86,7 @@ const DirectoryView = () => {
     if (data?.statusCode === "404") {
       setError(data);
     } else {
-      setDirectoryItems(data.list);
+      setDirectoryItems(data.dirItems);
     }
   }
 
@@ -87,6 +108,17 @@ const DirectoryView = () => {
       <br />
 
       {error && <h2>{error.msg}</h2>}
+
+      {!error && (
+        <form onSubmit={handleCreateDirectory}>
+          <input
+            type="text"
+            value={newDirname}
+            onChange={(e) => setNewDirname(e.target.value)}
+          />
+          <button>Create Folder</button>
+        </form>
+      )}
 
       {directoryItems.map(({ name, isDirectory }, i) => {
         return (
