@@ -1,30 +1,31 @@
 import express from "express";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { preventPathTraversal } from "../utils/preventPathTraversal.js";
+const { default: foldersData } = await import("../foldersDB.json", {
+  with: { type: "json" },
+});
+const { default: filesData } = await import("../filesDB.json", {
+  with: { type: "json" },
+});
 
 const router = express.Router();
 
-router.get("{/*dirPath}", async (req, res) => {
-  const { dirPath } = req.params;
-  const dirFullPath = dirPath ? dirPath.join("/") : "";
+router.get("{/:id}", async (req, res) => {
+  const dirId = req.params.id ? req.params.id : foldersData[0].id;
 
-  const requestedPath = preventPathTraversal(res, dirFullPath);
-  if (!requestedPath) return;
+  const folderInfo = foldersData.find((folder) => folder.id === dirId);
 
-  try {
-    let dirItems = await readdir(requestedPath, {
-      withFileTypes: true,
-    });
-    dirItems = dirItems.map((item) => {
-      return {
-        name: item.name,
-        isDirectory: item.isDirectory(),
-      };
-    });
-    res.json({ dirItems });
-  } catch (err) {
-    res.status(404).json({ statusCode: "404", msg: "Directory Not Found" });
-  }
+  const directoryItems = [];
+  folderInfo.content.files.forEach((fileId) => {
+    const { name: fileName } = filesData.find((file) => file.id === fileId);
+    directoryItems.push({ fileId, fileName, isDirectory: false });
+  });
+  folderInfo.content.directories.forEach((dirId) => {
+    const { name: dirName } = foldersData.find((dir) => dir.id === dirId);
+    directoryItems.push({ dirId, dirName, isDirectory: true });
+  });
+
+  res.json(directoryItems);
 });
 
 router.post("/*dirPath", async (req, res) => {
