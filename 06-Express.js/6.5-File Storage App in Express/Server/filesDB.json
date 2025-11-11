@@ -13,8 +13,26 @@
   },
   {
     "id": "ebf74cce-809a-4ed9-a773-27fafb9c802c",
-    "name": "test.txt",
+    "name": "abc.txt",
     "extension": ".txt",
+    "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
+  },
+  {
+    "id": "ed4cd4e6-0c3b-42f6-b9fe-f726863e98ac",
+    "name": "DSA.mp4",
+    "extension": ".mp4",
+    "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
+  },
+  {
+    "id": "7fee6a29-17ff-47d3-937c-2db87dbb91d1",
+    "name": "DSA_Guide.pdf",
+    "extension": ".pdf",
+    "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
+  },
+  {
+    "id": "33c4d7b3-0498-4c5f-bac6-863832b0c7aa",
+    "name": "DSA Narshimha.pdf",
+    "extension": ".pdf",
     "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
   }
 ]

@@ -1,4 +1,5 @@
 import express from "express";
+import mime from "mime-types";
 import { createWriteStream } from "node:fs";
 import { rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -19,11 +20,20 @@ router.get("/:id", (req, res) => {
   const storageRoot = path.resolve("./storage");
   const filePath = `${storageRoot}/${filename}`;
 
+  const headers = {};
   if (req.query.action === "download") {
-    res.set("Content-Disposition", "attachment");
+    headers["Content-Disposition"] = `attachment; filename="${fileInfo.name}"`;
+  } else {
+    let contentType = mime.contentType(fileInfo.name);
+    console.log(contentType);
+    if (contentType === "application/mp4") {
+      contentType = "video/mp4";
+    }
+    console.log(contentType);
+    headers["Content-Type"] = contentType;
   }
 
-  res.sendFile(filePath, (err) => {
+  res.sendFile(filePath, { headers }, (err) => {
     if (err && !res.headersSent) {
       res.status(404).json({ msg: "File Not Found" });
     }

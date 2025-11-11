@@ -2,11 +2,14 @@
   {
     "id": "5b836344-15c0-4aa9-a56a-c42789a63d6b",
     "name": "root",
-    "parentDir": null,
+    "parentDirId": null,
     "files": [
       "2a1a98f1-941e-45af-9ec1-a2b8fb5b0b70",
       "65669f1e-2a90-4ca5-8257-6cae79057fe4",
-      "ebf74cce-809a-4ed9-a773-27fafb9c802c"
+      "ebf74cce-809a-4ed9-a773-27fafb9c802c",
+      "ed4cd4e6-0c3b-42f6-b9fe-f726863e98ac",
+      "7fee6a29-17ff-47d3-937c-2db87dbb91d1",
+      "33c4d7b3-0498-4c5f-bac6-863832b0c7aa"
     ],
     "directories": []
   }
