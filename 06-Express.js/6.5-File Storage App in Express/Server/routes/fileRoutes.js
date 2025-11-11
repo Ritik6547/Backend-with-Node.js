@@ -5,6 +5,9 @@ import path from "node:path";
 const { default: filesData } = await import("../filesDB.json", {
   with: { type: "json" },
 });
+const { default: foldersData } = await import("../foldersDB.json", {
+  with: { type: "json" },
+});
 
 const router = express.Router();
 
@@ -29,6 +32,7 @@ router.get("/:id", (req, res) => {
 
 router.post("/:filename", (req, res) => {
   const { filename } = req.params;
+  const parentDirId = req.headers.parentdirid || foldersData[0].id;
   const extension = path.extname(filename);
   const id = crypto.randomUUID();
 
@@ -42,8 +46,13 @@ router.post("/:filename", (req, res) => {
       id,
       name: filename,
       extension,
+      parentDirId,
     });
     await writeFile("./filesDB.json", JSON.stringify(filesData));
+
+    const folderInfo = foldersData.find((dir) => dir.id === parentDirId);
+    folderInfo.files.push(id);
+    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
     res.json({ msg: "File Uploaded Successfully" });
   });
 });
@@ -52,7 +61,6 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   const fileIndex = filesData.findIndex((file) => file.id === id);
   const fileInfo = filesData[fileIndex];
-  console.log(fileInfo);
 
   const filename = `${id}${fileInfo.extension}`;
   const storageRoot = path.resolve("./storage");
@@ -61,8 +69,14 @@ router.delete("/:id", async (req, res) => {
   try {
     await rm(filePath, { recursive: true });
     filesData.splice(fileIndex, 1);
-
     await writeFile("./filesDB.json", JSON.stringify(filesData));
+
+    const folderInfo = foldersData.find(
+      (dir) => dir.id === fileInfo.parentDirId
+    );
+    folderInfo.files = folderInfo.files.filter((fileId) => fileId !== id);
+    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
+
     res.json({ msg: "File Deleted Successfully" });
   } catch (err) {
     res.status(404).json({ msg: "File Not Found" });

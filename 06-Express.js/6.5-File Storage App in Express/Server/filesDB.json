@@ -1,1 +1,20 @@
-[{"id":"2a1a98f1-941e-45af-9ec1-a2b8fb5b0b70","name":"node.png","extension":".png"},{"id":"65669f1e-2a90-4ca5-8257-6cae79057fe4","name":"hello.js","extension":".js"},{"id":"55471c40-4bef-4f2c-91d4-994ed309e93c","name":"test.txt","extension":".txt"}]
+[
+  {
+    "id": "2a1a98f1-941e-45af-9ec1-a2b8fb5b0b70",
+    "name": "node.png",
+    "extension": ".png",
+    "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
+  },
+  {
+    "id": "65669f1e-2a90-4ca5-8257-6cae79057fe4",
+    "name": "hello.js",
+    "extension": ".js",
+    "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
+  },
+  {
+    "id": "ebf74cce-809a-4ed9-a773-27fafb9c802c",
+    "name": "test.txt",
+    "extension": ".txt",
+    "parentDirId": "5b836344-15c0-4aa9-a56a-c42789a63d6b"
+  }
+]

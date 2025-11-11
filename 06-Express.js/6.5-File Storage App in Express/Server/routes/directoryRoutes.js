@@ -15,17 +15,11 @@ router.get("{/:id}", async (req, res) => {
 
   const folderInfo = foldersData.find((folder) => folder.id === dirId);
 
-  const directoryItems = [];
-  folderInfo.content.files.forEach((fileId) => {
-    const { name: fileName } = filesData.find((file) => file.id === fileId);
-    directoryItems.push({ fileId, fileName, isDirectory: false });
-  });
-  folderInfo.content.directories.forEach((dirId) => {
-    const { name: dirName } = foldersData.find((dir) => dir.id === dirId);
-    directoryItems.push({ dirId, dirName, isDirectory: true });
-  });
+  const folderFileData = folderInfo.files.map((fileId) =>
+    filesData.find((file) => file.id === fileId)
+  );
 
-  res.json(directoryItems);
+  res.json({ ...folderInfo, files: folderFileData });
 });
 
 router.post("/*dirPath", async (req, res) => {
