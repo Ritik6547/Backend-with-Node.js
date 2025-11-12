@@ -25,11 +25,9 @@ router.get("/:id", (req, res) => {
     headers["Content-Disposition"] = `attachment; filename="${fileInfo.name}"`;
   } else {
     let contentType = mime.contentType(fileInfo.name);
-    console.log(contentType);
     if (contentType === "application/mp4") {
       contentType = "video/mp4";
     }
-    console.log(contentType);
     headers["Content-Type"] = contentType;
   }
 
@@ -40,12 +38,12 @@ router.get("/:id", (req, res) => {
   });
 });
 
-router.post("/:filename", (req, res) => {
-  const { filename } = req.params;
-  const parentDirId = req.headers.parentdirid || foldersData[0].id;
+router.post("{/:id}", (req, res) => {
+  const parentDirId = req.params.id || foldersData[0].id;
+  const { filename } = req.headers;
+
   const extension = path.extname(filename);
   const id = crypto.randomUUID();
-
   const newFilename = `${id}${extension}`;
 
   const writeStream = createWriteStream(`./storage/${newFilename}`);
@@ -60,8 +58,8 @@ router.post("/:filename", (req, res) => {
     });
     await writeFile("./filesDB.json", JSON.stringify(filesData));
 
-    const folderInfo = foldersData.find((dir) => dir.id === parentDirId);
-    folderInfo.files.push(id);
+    const dirInfo = foldersData.find((dir) => dir.id === parentDirId);
+    dirInfo.files.push(id);
     await writeFile("./foldersDB.json", JSON.stringify(foldersData));
     res.json({ msg: "File Uploaded Successfully" });
   });
@@ -81,10 +79,8 @@ router.delete("/:id", async (req, res) => {
     filesData.splice(fileIndex, 1);
     await writeFile("./filesDB.json", JSON.stringify(filesData));
 
-    const folderInfo = foldersData.find(
-      (dir) => dir.id === fileInfo.parentDirId
-    );
-    folderInfo.files = folderInfo.files.filter((fileId) => fileId !== id);
+    const dirInfo = foldersData.find((dir) => dir.id === fileInfo.parentDirId);
+    dirInfo.files = dirInfo.files.filter((fileId) => fileId !== id);
     await writeFile("./foldersDB.json", JSON.stringify(foldersData));
 
     res.json({ msg: "File Deleted Successfully" });

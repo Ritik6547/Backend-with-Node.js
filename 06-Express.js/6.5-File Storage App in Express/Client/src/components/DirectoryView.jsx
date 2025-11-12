@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 
 const DirectoryView = () => {
   const BASE_URL = "http://10.134.244.171:4000";
-  const [directoryItems, setDirectoryItems] = useState(null);
   const [directoriesList, setDirectoriesList] = useState([]);
   const [filesList, setFilesList] = useState([]);
   const [progress, setProgress] = useState(0);
@@ -11,7 +10,7 @@ const DirectoryView = () => {
   const [newFilename, setNewFilename] = useState("");
   const [newDirname, setNewDirname] = useState("");
   // const [error, setError] = useState(null);
-  const { "*": dirPath } = useParams();
+  const { dirId } = useParams();
 
   const handleSave = async (id) => {
     const response = await fetch(`${BASE_URL}/file/${id}`, {
@@ -41,8 +40,8 @@ const DirectoryView = () => {
     setIsUploadStart(true);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${BASE_URL}/file/${file.name}`, true);
-    // xhr.setRequestHeader("parentdirid", null);
+    xhr.open("POST", `${BASE_URL}/file/${dirId || ""}`, true);
+    xhr.setRequestHeader("filename", file.name);
     xhr.addEventListener("load", () => {
       console.log(xhr.response);
       getDirectoryItems();
@@ -57,12 +56,12 @@ const DirectoryView = () => {
 
   const handleCreateDirectory = async (e) => {
     e.preventDefault();
-    const response = await fetch(
-      `${BASE_URL}/directory${dirPath && "/" + dirPath}/${newDirname}`,
-      {
-        method: "POST",
-      }
-    );
+    const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`, {
+      method: "POST",
+      headers: {
+        dirname: newDirname,
+      },
+    });
     const data = await response.json();
     setNewDirname("");
     console.log(data);
@@ -71,7 +70,7 @@ const DirectoryView = () => {
 
   async function getDirectoryItems() {
     // setError(null);
-    const response = await fetch(`${BASE_URL}/directory/${dirPath}`);
+    const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`);
     const data = await response.json();
 
     setDirectoriesList(data.directories);
@@ -80,7 +79,7 @@ const DirectoryView = () => {
 
   useEffect(() => {
     getDirectoryItems();
-  }, [dirPath]);
+  }, [dirId]);
 
   return (
     <div>
@@ -105,6 +104,19 @@ const DirectoryView = () => {
         />
         <button>Create Folder</button>
       </form>
+
+      {directoriesList.map(({ name, id }) => {
+        return (
+          <div key={id}>
+            <span>{name} </span>
+
+            <Link to={`/directory/${id}`}>Open </Link>
+            <button onClick={() => {}}>Rename</button>
+            <button onClick={() => {}}>Save</button>
+            <button onClick={() => {}}>Delete</button>
+          </div>
+        );
+      })}
 
       {filesList.map(({ name, id }) => {
         return (
