@@ -1,5 +1,6 @@
 import express from "express";
-import { writeFile } from "node:fs/promises";
+import path from "node:path";
+import { rm, writeFile } from "node:fs/promises";
 const { default: foldersData } = await import("../foldersDB.json", {
   with: { type: "json" },
 });
@@ -54,5 +55,64 @@ router.post("{/:id}", async (req, res) => {
     res.status(400).json({ msg: "Something Went Wrong" });
   }
 });
+
+router.patch("/:id", async (req, res) => {
+  const { newDirname } = req.body;
+  const { id } = req.params;
+
+  const dirInfo = foldersData.find((folder) => folder.id === id);
+  dirInfo.name = newDirname;
+
+  try {
+    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
+    res.json({ msg: "Directory Renamed Successfully" });
+  } catch (err) {
+    res.status(404).json({ msg: "Directory Not Found" });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await deleteDirectory(id);
+
+    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
+    await writeFile("./filesDB.json", JSON.stringify(filesData));
+
+    res.json({ msg: "Directory Deleted Successfully" });
+  } catch (err) {
+    res.status(404).json({ msg: "Directory Not Found" });
+  }
+});
+
+async function deleteDirectory(id) {
+  const dirIndex = foldersData.findIndex((folder) => folder.id === id);
+  const dirInfo = foldersData[dirIndex];
+  const parentDirInfo = foldersData.find(
+    (folder) => folder.id === dirInfo.parentDirId
+  );
+  parentDirInfo.directories = parentDirInfo.directories.filter(
+    (dirId) => dirId !== id
+  );
+
+  for (const fileId of dirInfo.files) {
+    const fileIndex = filesData.findIndex((file) => file.id === fileId);
+    const fileInfo = filesData[fileIndex];
+
+    const filename = `${fileId}${fileInfo.extension}`;
+    const storageRoot = path.resolve("./storage");
+    const filePath = `${storageRoot}/${filename}`;
+
+    await rm(filePath);
+    filesData.splice(fileIndex, 1);
+  }
+
+  for (const dirId of dirInfo.directories) {
+    await deleteDirectory(dirId);
+  }
+
+  foldersData.splice(dirIndex, 1);
+}
 
 export default router;

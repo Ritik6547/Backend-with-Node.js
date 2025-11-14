@@ -9,10 +9,9 @@ const DirectoryView = () => {
   const [isUploadStart, setIsUploadStart] = useState(false);
   const [newFilename, setNewFilename] = useState("");
   const [newDirname, setNewDirname] = useState("");
-  // const [error, setError] = useState(null);
   const { dirId } = useParams();
 
-  const handleSave = async (id) => {
+  const handleFileSave = async (id) => {
     const response = await fetch(`${BASE_URL}/file/${id}`, {
       method: "PATCH",
       headers: {
@@ -26,8 +25,31 @@ const DirectoryView = () => {
     setNewFilename("");
   };
 
-  const handleDelete = async (id) => {
+  const handleDirectorySave = async (id) => {
+    const response = await fetch(`${BASE_URL}/directory/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newDirname: newFilename }),
+    });
+    const data = await response.json();
+    console.log(data);
+    setNewFilename("");
+    getDirectoryItems();
+  };
+
+  const handleFileDelete = async (id) => {
     const response = await fetch(`${BASE_URL}/file/${id}`, {
+      method: "DELETE",
+    });
+    const data = await response.json();
+    console.log(data);
+    getDirectoryItems();
+  };
+
+  const handleDirectoryDelete = async (id) => {
+    const response = await fetch(`${BASE_URL}/directory/${id}`, {
       method: "DELETE",
     });
     const data = await response.json();
@@ -69,7 +91,6 @@ const DirectoryView = () => {
   };
 
   async function getDirectoryItems() {
-    // setError(null);
     const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`);
     const data = await response.json();
 
@@ -94,8 +115,6 @@ const DirectoryView = () => {
       <br />
       <br />
 
-      {/* {error && <h2>{error.msg}</h2>} */}
-
       <form onSubmit={handleCreateDirectory}>
         <input
           type="text"
@@ -111,9 +130,9 @@ const DirectoryView = () => {
             <span>{name} </span>
 
             <Link to={`/directory/${id}`}>Open </Link>
-            <button onClick={() => {}}>Rename</button>
-            <button onClick={() => {}}>Save</button>
-            <button onClick={() => {}}>Delete</button>
+            <button onClick={() => setNewFilename(name)}>Rename</button>
+            <button onClick={() => handleDirectorySave(id)}>Save</button>
+            <button onClick={() => handleDirectoryDelete(id)}>Delete</button>
           </div>
         );
       })}
@@ -126,8 +145,8 @@ const DirectoryView = () => {
             <a href={`${BASE_URL}/file/${id}`}>Open </a>
             <a href={`${BASE_URL}/file/${id}?action=download`}>Download </a>
             <button onClick={() => setNewFilename(name)}>Rename</button>
-            <button onClick={() => handleSave(id)}>Save</button>
-            <button onClick={() => handleDelete(id)}>Delete</button>
+            <button onClick={() => handleFileSave(id)}>Save</button>
+            <button onClick={() => handleFileDelete(id)}>Delete</button>
           </div>
         );
       })}
