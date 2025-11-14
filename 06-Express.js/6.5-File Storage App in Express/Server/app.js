@@ -12,4 +12,9 @@ app.use(express.json());
 app.use("/directory", directoryRoutes);
 app.use("/file", fileRoutes);
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ msg: "Something went wrong" });
+});
+
 app.listen(port, () => console.log("Server started"));
