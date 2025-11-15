@@ -1,1 +1,26 @@
-[{"id":"5b836344-15c0-4aa9-a56a-c42789a63d6b","name":"root","parentDirId":null,"files":["2a1a98f1-941e-45af-9ec1-a2b8fb5b0b70","65669f1e-2a90-4ca5-8257-6cae79057fe4","ebf74cce-809a-4ed9-a773-27fafb9c802c","ed4cd4e6-0c3b-42f6-b9fe-f726863e98ac"],"directories":["4620f0a5-d9cf-427c-bec0-b4611c8c9536"]},{"id":"4620f0a5-d9cf-427c-bec0-b4611c8c9536","name":"images","parentDirId":"5b836344-15c0-4aa9-a56a-c42789a63d6b","files":["adefd119-63a8-4936-abe5-3d8797a72bb0"],"directories":["8c7b045c-8b53-42b9-9910-524645f87405"]},{"id":"8c7b045c-8b53-42b9-9910-524645f87405","name":"assets","parentDirId":"4620f0a5-d9cf-427c-bec0-b4611c8c9536","files":["e7adca6a-ced7-4a59-978a-4f63ba6ad20c"],"directories":["52c4c8ce-3ccc-45a7-bae7-083cfa35d980"]},{"id":"52c4c8ce-3ccc-45a7-bae7-083cfa35d980","name":"png","parentDirId":"8c7b045c-8b53-42b9-9910-524645f87405","files":["42195df9-c600-4faa-845b-cd305a72c845"],"directories":[]}]
+[
+  {
+    "id": "fda139b5-349d-4007-8fad-00401c33f744",
+    "name": "root-ritik@gmail.com",
+    "userId": "78b26861-7b81-4811-be48-e39f7755b26d",
+    "parentDirId": null,
+    "files": [],
+    "directories": []
+  },
+  {
+    "id": "703527e5-abf6-42dc-bd1d-ba130f1c782c",
+    "name": "root-test@gmail.com",
+    "userId": "8413cc71-5cde-4d23-b99a-99cc7c4ae98b",
+    "parentDirId": null,
+    "files": [],
+    "directories": []
+  },
+  {
+    "id": "34ea9e42-0226-4fb5-b98c-834ca5a53e41",
+    "name": "root-abc@gmail.com",
+    "userId": "89e1f126-0a9b-432c-a959-78a3e7167675",
+    "parentDirId": null,
+    "files": [],
+    "directories": []
+  }
+]

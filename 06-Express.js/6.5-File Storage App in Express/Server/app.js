@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import directoryRoutes from "./routes/directoryRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 const port = 4000;
@@ -11,6 +12,7 @@ app.use(express.json());
 
 app.use("/directory", directoryRoutes);
 app.use("/file", fileRoutes);
+app.use("/user", userRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

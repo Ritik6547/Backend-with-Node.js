@@ -103,8 +103,26 @@ const DirectoryView = () => {
   }, [dirId]);
 
   return (
-    <div>
-      <h1>My Files</h1>
+    <div
+      style={{
+        paddingInline: 24,
+      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}>
+        <h1>My Files</h1>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            marginTop: 16,
+          }}>
+          <Link to="/register">Register</Link>
+          <Link to="/login">Login</Link>
+        </div>
+      </div>
       <input type="file" onChange={handleFileUpload} />
       <input
         type="text"
