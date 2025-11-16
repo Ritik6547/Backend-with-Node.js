@@ -1,26 +1,16 @@
 [
   {
-    "id": "fda139b5-349d-4007-8fad-00401c33f744",
-    "name": "root-ritik@gmail.com",
-    "userId": "78b26861-7b81-4811-be48-e39f7755b26d",
+    "id": "c2b849bf-409e-4d7d-8519-eac6cd919160",
+    "name": "root",
     "parentDirId": null,
-    "files": [],
-    "directories": []
+    "files": ["19c53738-f543-436f-8917-6fd9a3505bfa"],
+    "directories": ["b1efcca1-7233-4fb1-a5f0-7de83c316e26"]
   },
   {
-    "id": "703527e5-abf6-42dc-bd1d-ba130f1c782c",
-    "name": "root-test@gmail.com",
-    "userId": "8413cc71-5cde-4d23-b99a-99cc7c4ae98b",
-    "parentDirId": null,
-    "files": [],
-    "directories": []
-  },
-  {
-    "id": "34ea9e42-0226-4fb5-b98c-834ca5a53e41",
-    "name": "root-abc@gmail.com",
-    "userId": "89e1f126-0a9b-432c-a959-78a3e7167675",
-    "parentDirId": null,
-    "files": [],
+    "id": "b1efcca1-7233-4fb1-a5f0-7de83c316e26",
+    "name": "images",
+    "parentDirId": "c2b849bf-409e-4d7d-8519-eac6cd919160",
+    "files": ["720c4e06-e48b-408f-b3dc-3ee7f832272d"],
     "directories": []
   }
 ]

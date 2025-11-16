@@ -65,6 +65,7 @@ router.post("{/:id}", async (req, res, next) => {
 
 router.patch("/:id", async (req, res, next) => {
   const { newDirname } = req.body;
+  console.log(newDirname);
   const { id } = req.params;
 
   const dirInfo = foldersData.find((folder) => folder.id === id);
