@@ -14,9 +14,16 @@ const router = express.Router();
 
 router.get("/:id", (req, res) => {
   const { id } = req.params;
+  const user = req.user;
+
   const fileInfo = filesData.find((file) => file.id === id);
   if (!fileInfo) {
     return res.status(404).json({ msg: "File Not Found" });
+  }
+
+  const parentDir = foldersData.find((dir) => dir.id === fileInfo.parentDirId);
+  if (parentDir.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
   }
 
   const filename = `${id}${fileInfo.extension}`;
@@ -42,7 +49,8 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("{/:id}", (req, res) => {
-  const parentDirId = req.params.id || foldersData[0].id;
+  const user = req.user;
+  const parentDirId = req.params.id || user.rootDirId;
   const filename = req.headers.filename || "untitled";
 
   const extension = path.extname(filename);
@@ -74,11 +82,18 @@ router.post("{/:id}", (req, res) => {
 
 router.delete("/:id", async (req, res, next) => {
   const { id } = req.params;
+  const user = req.user;
+
   const fileIndex = filesData.findIndex((file) => file.id === id);
   if (fileIndex === -1) {
     return res.status(404).json({ msg: "File Not Found" });
   }
   const fileInfo = filesData[fileIndex];
+
+  const parentDir = foldersData.find((dir) => dir.id === fileInfo.parentDirId);
+  if (parentDir.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
+  }
 
   const filename = `${id}${fileInfo.extension}`;
   const storageRoot = path.resolve("./storage");
@@ -88,8 +103,7 @@ router.delete("/:id", async (req, res, next) => {
     await rm(filePath);
     filesData.splice(fileIndex, 1);
 
-    const dirInfo = foldersData.find((dir) => dir.id === fileInfo.parentDirId);
-    dirInfo.files = dirInfo.files.filter((fileId) => fileId !== id);
+    parentDir.files = parentDir.files.filter((fileId) => fileId !== id);
 
     await writeFile("./filesDB.json", JSON.stringify(filesData));
     await writeFile("./foldersDB.json", JSON.stringify(foldersData));
@@ -101,12 +115,21 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", async (req, res, next) => {
+  const user = req.user;
   const { newFilename } = req.body;
   const { id } = req.params;
   const ext = path.extname(newFilename);
 
   const fileInfo = filesData.find((file) => file.id === id);
+  if (!fileInfo) {
+    return res.status(404).json({ msg: "File Not Found" });
+  }
+
+  const parentDir = foldersData.find((dir) => dir.id === fileInfo.parentDirId);
+  if (parentDir.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
+  }
 
   try {
     if (ext !== fileInfo.extension) {
@@ -125,7 +148,7 @@ router.patch("/:id", async (req, res) => {
     await writeFile("./filesDB.json", JSON.stringify(filesData));
     return res.status(200).json({ msg: "File Renamed Successfully" });
   } catch (err) {
-    return res.status(404).json({ msg: "File Not Found" });
+    next(err);
   }
 });
 

@@ -9,7 +9,7 @@ const { default: foldersData } = await import("../foldersDB.json", {
 
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
+router.post("/register", async (req, res, next) => {
   const { name, email, password } = req.body;
 
   const userIdx = usersData.findIndex((user) => user.email === email);
@@ -48,6 +48,22 @@ router.post("/", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+router.post("/login", async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const user = usersData.find((user) => user.email === email);
+  if (!user || user.password !== password) {
+    return res.status(404).json({ error: "Invalid Credentials" });
+  }
+
+  res.cookie("uid", user.id, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 7 * 1000,
+  });
+
+  res.json({ msg: "Logged In" });
 });
 
 export default router;

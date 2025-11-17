@@ -1,6 +1,7 @@
 import express from "express";
 import path from "node:path";
 import { rm, writeFile } from "node:fs/promises";
+import { error } from "node:console";
 const { default: foldersData } = await import("../foldersDB.json", {
   with: { type: "json" },
 });
@@ -11,7 +12,8 @@ const { default: filesData } = await import("../filesDB.json", {
 const router = express.Router();
 
 router.get("{/:id}", (req, res) => {
-  const dirId = req.params.id || foldersData[0].id;
+  const user = req.user;
+  const dirId = req.params.id || user.rootDirId;
 
   const dirInfo = foldersData.find((folder) => folder.id === dirId);
   if (!dirInfo) {
@@ -36,7 +38,9 @@ router.get("{/:id}", (req, res) => {
 });
 
 router.post("{/:id}", async (req, res, next) => {
-  const parentDirId = req.params.id || foldersData[0].id;
+  const user = req.user;
+
+  const parentDirId = req.params.id || user.rootDirId;
   const dirname = req.headers.dirname || "New Folder";
 
   const parentDirInfo = foldersData.find((folder) => folder.id === parentDirId);
@@ -47,6 +51,7 @@ router.post("{/:id}", async (req, res, next) => {
   const dir = {
     id: crypto.randomUUID(),
     name: dirname,
+    userId: user.id,
     parentDirId,
     files: [],
     directories: [],
@@ -65,7 +70,6 @@ router.post("{/:id}", async (req, res, next) => {
 
 router.patch("/:id", async (req, res, next) => {
   const { newDirname } = req.body;
-  console.log(newDirname);
   const { id } = req.params;
 
   const dirInfo = foldersData.find((folder) => folder.id === id);
