@@ -1,7 +1,6 @@
 import express from "express";
 import path from "node:path";
 import { rm, writeFile } from "node:fs/promises";
-import { error } from "node:console";
 const { default: foldersData } = await import("../foldersDB.json", {
   with: { type: "json" },
 });
@@ -18,6 +17,10 @@ router.get("{/:id}", (req, res) => {
   const dirInfo = foldersData.find((folder) => folder.id === dirId);
   if (!dirInfo) {
     return res.status(404).json({ msg: "Directory Not Found" });
+  }
+
+  if (dirInfo.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
   }
 
   const dirFilesData = dirInfo.files.map((fileId) => {
@@ -39,13 +42,16 @@ router.get("{/:id}", (req, res) => {
 
 router.post("{/:id}", async (req, res, next) => {
   const user = req.user;
-
   const parentDirId = req.params.id || user.rootDirId;
   const dirname = req.headers.dirname || "New Folder";
 
   const parentDirInfo = foldersData.find((folder) => folder.id === parentDirId);
   if (!parentDirInfo) {
     return res.status(404).json({ msg: "Parent Directory Not Found" });
+  }
+
+  if (parentDirInfo.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
   }
 
   const dir = {
@@ -69,6 +75,7 @@ router.post("{/:id}", async (req, res, next) => {
 });
 
 router.patch("/:id", async (req, res, next) => {
+  const user = req.user;
   const { newDirname } = req.body;
   const { id } = req.params;
 
@@ -76,6 +83,11 @@ router.patch("/:id", async (req, res, next) => {
   if (!dirInfo) {
     return res.status(404).json({ msg: "Directory Not Found" });
   }
+
+  if (dirInfo.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
+  }
+
   dirInfo.name = newDirname;
 
   try {
@@ -87,7 +99,17 @@ router.patch("/:id", async (req, res, next) => {
 });
 
 router.delete("/:id", async (req, res, next) => {
+  const user = req.user;
   const { id } = req.params;
+
+  const dirInfo = foldersData.find((dir) => dir.id === id);
+  if (!dirInfo) {
+    return res.status(404).json({ msg: "Directory Not Found" });
+  }
+
+  if (dirInfo.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
+  }
 
   try {
     await deleteDirectory(id);

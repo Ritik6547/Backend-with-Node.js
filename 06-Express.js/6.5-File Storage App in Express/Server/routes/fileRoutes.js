@@ -53,6 +53,15 @@ router.post("{/:id}", (req, res) => {
   const parentDirId = req.params.id || user.rootDirId;
   const filename = req.headers.filename || "untitled";
 
+  const parentDir = foldersData.find((dir) => dir.id === parentDirId);
+  if (!parentDir) {
+    return res.status(404).json({ msg: "No Such Directory Exist" });
+  }
+
+  if (parentDir.userId !== user.id) {
+    return res.status(401).json({ msg: "Unauthorized Access" });
+  }
+
   const extension = path.extname(filename);
   const id = crypto.randomUUID();
   const newFilename = `${id}${extension}`;
@@ -67,8 +76,8 @@ router.post("{/:id}", (req, res) => {
       extension,
       parentDirId,
     });
-    const dirInfo = foldersData.find((dir) => dir.id === parentDirId);
-    dirInfo.files.push(id);
+
+    parentDir.files.push(id);
 
     try {
       await writeFile("./filesDB.json", JSON.stringify(filesData));

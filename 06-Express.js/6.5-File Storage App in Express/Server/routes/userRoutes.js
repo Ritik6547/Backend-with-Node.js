@@ -1,5 +1,6 @@
 import express from "express";
 import { writeFile } from "node:fs/promises";
+import checkAuth from "../middleware/auth.js";
 const { default: usersData } = await import("../usersDB.json", {
   with: { type: "json" },
 });
@@ -64,6 +65,21 @@ router.post("/login", async (req, res, next) => {
   });
 
   res.json({ msg: "Logged In" });
+});
+
+router.get("/", checkAuth, (req, res) => {
+  const { name, email } = req.user;
+
+  res.status(200).json({ name, email });
+});
+
+router.post("/logout", (req, res) => {
+  // res.cookie("uid", "", {
+  //   maxAge: 0,
+  // });
+  res.clearCookie("uid");
+
+  res.status(200).json({ msg: "Logged Out" });
 });
 
 export default router;

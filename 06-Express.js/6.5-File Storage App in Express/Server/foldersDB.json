@@ -4,35 +4,27 @@
     "name": "root-alpha@gmail.com",
     "userId": "6a2919ec-2ebd-468d-8649-2c5e3f671c47",
     "parentDirId": null,
-    "files": ["6dff493e-fd73-4316-94ca-d14f5c98aa54"],
-    "directories": ["d7bf21cd-2e51-4ed5-bf93-73fa360fea92"]
+    "files": ["c16febd4-ef54-4aad-8143-47ba65cff9ea"],
+    "directories": ["9c8c8373-878c-4d44-b35e-9ce57fdc108d"]
   },
   {
     "id": "de58e6f3-8358-4240-a115-a04628f76f34",
     "name": "root-test@gmail.com",
     "userId": "1372416e-9e29-4aa0-9204-dddc621fbef8",
     "parentDirId": null,
-    "files": ["6966e418-1f66-44eb-a770-9ff760dd4a79"],
-    "directories": ["a148250e-18b0-4049-ad8d-78ef84d13b2f"]
+    "files": ["1c5687cc-fb07-4748-b942-959d96effd3b"],
+    "directories": ["2205dbfd-4a33-44a3-9c64-3648910a948b"]
   },
   {
-    "id": "a148250e-18b0-4049-ad8d-78ef84d13b2f",
-    "name": "Test",
+    "id": "2205dbfd-4a33-44a3-9c64-3648910a948b",
+    "name": "test",
     "userId": "1372416e-9e29-4aa0-9204-dddc621fbef8",
     "parentDirId": "de58e6f3-8358-4240-a115-a04628f76f34",
-    "files": [],
-    "directories": ["99d40129-eaef-41ff-a6c9-8e5f31878a5b"]
-  },
-  {
-    "id": "99d40129-eaef-41ff-a6c9-8e5f31878a5b",
-    "name": "apple",
-    "userId": "1372416e-9e29-4aa0-9204-dddc621fbef8",
-    "parentDirId": "a148250e-18b0-4049-ad8d-78ef84d13b2f",
-    "files": [],
+    "files": ["32f64963-7d6c-4dca-aefd-1aa6d5d73069"],
     "directories": []
   },
   {
-    "id": "d7bf21cd-2e51-4ed5-bf93-73fa360fea92",
+    "id": "9c8c8373-878c-4d44-b35e-9ce57fdc108d",
     "name": "alpha",
     "userId": "6a2919ec-2ebd-468d-8649-2c5e3f671c47",
     "parentDirId": "0ac413cf-81ad-448e-b041-582d609572b0",
