@@ -1,6 +1,7 @@
 import express from "express";
 import path from "node:path";
 import { rm, writeFile } from "node:fs/promises";
+import validateIdMiddleware from "../middleware/validateIdMiddleware.js";
 const { default: foldersData } = await import("../foldersDB.json", {
   with: { type: "json" },
 });
@@ -10,7 +11,9 @@ const { default: filesData } = await import("../filesDB.json", {
 
 const router = express.Router();
 
-router.get("{/:id}", (req, res) => {
+router.param("id", validateIdMiddleware);
+
+router.get("/{:id}", (req, res) => {
   const user = req.user;
   const dirId = req.params.id || user.rootDirId;
 
@@ -40,7 +43,7 @@ router.get("{/:id}", (req, res) => {
   });
 });
 
-router.post("{/:id}", async (req, res, next) => {
+router.post("/{:id}", async (req, res, next) => {
   const user = req.user;
   const parentDirId = req.params.id || user.rootDirId;
   const dirname = req.headers.dirname || "New Folder";

@@ -1,8 +1,8 @@
 import express from "express";
-import mime from "mime-types";
 import { createWriteStream } from "node:fs";
 import { rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import validateIdMiddleware from "../middleware/validateIdMiddleware.js";
 const { default: filesData } = await import("../filesDB.json", {
   with: { type: "json" },
 });
@@ -11,6 +11,8 @@ const { default: foldersData } = await import("../foldersDB.json", {
 });
 
 const router = express.Router();
+
+router.param("id", validateIdMiddleware);
 
 router.get("/:id", (req, res) => {
   const { id } = req.params;
@@ -30,25 +32,18 @@ router.get("/:id", (req, res) => {
   const storageRoot = path.resolve("./storage");
   const filePath = `${storageRoot}/${filename}`;
 
-  const headers = {};
   if (req.query.action === "download") {
-    headers["Content-Disposition"] = `attachment; filename="${fileInfo.name}"`;
-  } else {
-    let contentType = mime.contentType(fileInfo.name);
-    if (contentType === "application/mp4") {
-      contentType = "video/mp4";
-    }
-    headers["Content-Type"] = contentType;
+    return res.download(filePath, fileInfo.name);
   }
 
-  return res.sendFile(filePath, { headers }, (err) => {
+  return res.sendFile(filePath, (err) => {
     if (err && !res.headersSent) {
       return res.status(404).json({ msg: "File Not Found" });
     }
   });
 });
 
-router.post("{/:id}", (req, res) => {
+router.post("/{:id}", (req, res) => {
   const user = req.user;
   const parentDirId = req.params.id || user.rootDirId;
   const filename = req.headers.filename || "untitled";
