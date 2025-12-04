@@ -1,1 +1,20 @@
-[{"id":"1c5687cc-fb07-4748-b942-959d96effd3b","name":"node.png","extension":".png","parentDirId":"de58e6f3-8358-4240-a115-a04628f76f34"},{"id":"32f64963-7d6c-4dca-aefd-1aa6d5d73069","name":"notes.webp","extension":".webp","parentDirId":"2205dbfd-4a33-44a3-9c64-3648910a948b"},{"id":"c16febd4-ef54-4aad-8143-47ba65cff9ea","name":"devCard.png","extension":".png","parentDirId":"0ac413cf-81ad-448e-b041-582d609572b0"}]
+[
+  {
+    "id": "1c5687cc-fb07-4748-b942-959d96effd3b",
+    "name": "node.png",
+    "extension": ".png",
+    "parentDirId": "de58e6f3-8358-4240-a115-a04628f76f34"
+  },
+  {
+    "id": "32f64963-7d6c-4dca-aefd-1aa6d5d73069",
+    "name": "notes.webp",
+    "extension": ".webp",
+    "parentDirId": "2205dbfd-4a33-44a3-9c64-3648910a948b"
+  },
+  {
+    "id": "c16febd4-ef54-4aad-8143-47ba65cff9ea",
+    "name": "devCard.png",
+    "extension": ".png",
+    "parentDirId": "0ac413cf-81ad-448e-b041-582d609572b0"
+  }
+]
