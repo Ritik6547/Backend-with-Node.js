@@ -31,7 +31,10 @@ router.get("/{:id}", async (req, res) => {
     return res.status(401).json({ msg: "Unauthorized Access" });
   }
 
-  const dirFilesData = [];
+  const dirFilesData = await db
+    .collection("files")
+    .find({ parentDirId: dirId })
+    .toArray();
 
   const directoriesData = await dirCollection
     .find({ parentDirId: dirId })
@@ -39,7 +42,10 @@ router.get("/{:id}", async (req, res) => {
 
   return res.status(200).json({
     ...dirInfo,
-    files: dirFilesData,
+    files: dirFilesData.map((file) => ({
+      name: file.name,
+      id: file._id,
+    })),
     directories: directoriesData.map((dir) => ({
       name: dir.name,
       id: dir._id,
@@ -80,7 +86,7 @@ router.post("/{:id}", async (req, res, next) => {
   }
 });
 
-// Update Directory
+// Rename Directory
 router.patch("/:id", async (req, res, next) => {
   const user = req.user;
   const db = req.db;

@@ -7,15 +7,15 @@ router.post("/register", async (req, res, next) => {
   const { name, email, password } = req.body;
   const db = req.db;
 
-  const user = await db.collection("users").findOne({ email });
-  if (user) {
-    return res.status(409).json({
-      error: "User already exits",
-      msg: "A user with this email address already exists.",
-    });
-  }
-
   try {
+    const user = await db.collection("users").findOne({ email });
+    if (user) {
+      return res.status(409).json({
+        error: "User already exits",
+        msg: "A user with this email address already exists.",
+      });
+    }
+
     const dirCollection = db.collection("directories");
 
     const userRootDir = await dirCollection.insertOne({
