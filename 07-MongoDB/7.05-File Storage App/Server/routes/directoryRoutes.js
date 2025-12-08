@@ -12,7 +12,7 @@ const { default: filesData } = await import("../filesDB.json", {
 
 const router = express.Router();
 
-// router.param("id", validateIdMiddleware);
+router.param("id", validateIdMiddleware);
 
 // Get Directory
 router.get("/{:id}", async (req, res) => {
@@ -20,7 +20,9 @@ router.get("/{:id}", async (req, res) => {
   const db = req.db;
   const dirId = req.params.id ? new ObjectId(req.params.id) : user.rootDirId;
 
-  const dirInfo = await db.collection("directories").findOne({ _id: dirId });
+  const dirCollection = db.collection("directories");
+
+  const dirInfo = await dirCollection.findOne({ _id: dirId });
   if (!dirInfo) {
     return res.status(404).json({ msg: "Directory Not Found" });
   }
@@ -31,8 +33,7 @@ router.get("/{:id}", async (req, res) => {
 
   const dirFilesData = [];
 
-  const directoriesData = await db
-    .collection("directories")
+  const directoriesData = await dirCollection
     .find({ parentDirId: dirId })
     .toArray();
 
@@ -55,10 +56,10 @@ router.post("/{:id}", async (req, res, next) => {
     : user.rootDirId;
   const dirname = req.headers.dirname || "New Folder";
 
+  const dirCollection = db.collection("directories");
+
   try {
-    const parentDirInfo = await db
-      .collection("directories")
-      .findOne({ _id: parentDirId });
+    const parentDirInfo = await dirCollection.findOne({ _id: parentDirId });
     if (!parentDirInfo) {
       return res.status(404).json({ msg: "Parent Directory Not Found" });
     }
@@ -67,7 +68,7 @@ router.post("/{:id}", async (req, res, next) => {
       return res.status(401).json({ msg: "Unauthorized Access" });
     }
 
-    await db.collection("directories").insertOne({
+    await dirCollection.insertOne({
       name: dirname,
       userId: user._id,
       parentDirId,
@@ -87,25 +88,15 @@ router.patch("/:id", async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // const dirInfo = await db
-    //   .collection("directories")
-    //   .findOne({ _id: new ObjectId(id) });
-
-    // if (!dirInfo) {
-    //   return res.status(404).json({ msg: "Directory Not Found" });
-    // }
-
-    // if (dirInfo.userId.toString() !== user._id.toString()) {
-    //   return res.status(401).json({ msg: "Unauthorized Access" });
-    // }
-
-    const res = await db
+    const result = await db
       .collection("directories")
       .updateOne(
         { _id: new ObjectId(id), userId: user._id },
         { $set: { name: newDirname } }
       );
-    console.log(res);
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ msg: "Directory Not Found" });
+    }
 
     return res.status(200).json({ msg: "Directory Renamed Successfully" });
   } catch (err) {

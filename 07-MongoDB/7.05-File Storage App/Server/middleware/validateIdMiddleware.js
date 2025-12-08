@@ -1,8 +1,7 @@
-export default function (req, res, next, id) {
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { ObjectId } from "mongodb";
 
-  if (!uuidRegex.test(id)) {
+export default function (req, res, next, id) {
+  if (!ObjectId.isValid(id) || String(new ObjectId(id)) !== id) {
     return res.status(400).json({ msg: `Invalid ID : ${id}` });
   }
 
