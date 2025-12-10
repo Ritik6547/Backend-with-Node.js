@@ -1,14 +1,19 @@
 import express from "express";
 import checkAuth from "../middleware/auth.js";
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
+// User registration
 router.post("/register", async (req, res, next) => {
   const { name, email, password } = req.body;
   const db = req.db;
 
+  const dirCollection = db.collection("directories");
+  const usersCollection = db.collection("users");
+
   try {
-    const user = await db.collection("users").findOne({ email });
+    const user = await usersCollection.findOne({ email });
     if (user) {
       return res.status(409).json({
         error: "User already exits",
@@ -16,23 +21,23 @@ router.post("/register", async (req, res, next) => {
       });
     }
 
-    const dirCollection = db.collection("directories");
+    const rootDirId = new ObjectId();
+    const userId = new ObjectId();
 
-    const userRootDir = await dirCollection.insertOne({
+    await dirCollection.insertOne({
+      _id: rootDirId,
       name: `root-${email}`,
       parentDirId: null,
+      userId,
     });
-    const rootDirId = userRootDir.insertedId;
 
-    const createdUser = await db.collection("users").insertOne({
+    await usersCollection.insertOne({
+      _id: userId,
       name,
       email,
       password,
       rootDirId,
     });
-    const userId = createdUser.insertedId;
-
-    await dirCollection.updateOne({ _id: rootDirId }, { $set: { userId } });
 
     return res.status(201).json({ msg: "User Registered Successfully" });
   } catch (err) {
@@ -40,6 +45,7 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
+// User login
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
   const db = req.db;
@@ -58,12 +64,14 @@ router.post("/login", async (req, res, next) => {
   res.json({ msg: "Logged In" });
 });
 
+// Get user details
 router.get("/", checkAuth, (req, res) => {
   const { name, email } = req.user;
 
   res.status(200).json({ name, email });
 });
 
+// User logout
 router.post("/logout", (req, res) => {
   // res.cookie("uid", "", {
   //   maxAge: 0,

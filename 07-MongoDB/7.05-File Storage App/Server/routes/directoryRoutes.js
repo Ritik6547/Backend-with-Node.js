@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.param("id", validateIdMiddleware);
 
-// Get Directory
+// Get directory
 router.get("/{:id}", async (req, res) => {
   const user = req.user;
   const db = req.db;
@@ -53,7 +53,7 @@ router.get("/{:id}", async (req, res) => {
   });
 });
 
-// Create Directory
+// Create directory
 router.post("/{:id}", async (req, res, next) => {
   const user = req.user;
   const db = req.db;
@@ -86,7 +86,7 @@ router.post("/{:id}", async (req, res, next) => {
   }
 });
 
-// Rename Directory
+// Rename directory
 router.patch("/:id", async (req, res, next) => {
   const user = req.user;
   const db = req.db;
@@ -110,18 +110,17 @@ router.patch("/:id", async (req, res, next) => {
   }
 });
 
-// Delete Directory
+// Delete directory --> TODO :- fix this route
 router.delete("/:id", async (req, res, next) => {
+  const db = req.db;
   const user = req.user;
   const { id } = req.params;
 
-  const dirInfo = foldersData.find((dir) => dir.id === id);
+  const dirInfo = db
+    .collection("directories")
+    .findOne({ _id: new ObjectId(id), userId: user._id });
   if (!dirInfo) {
     return res.status(404).json({ msg: "Directory Not Found" });
-  }
-
-  if (dirInfo.userId !== user.id) {
-    return res.status(401).json({ msg: "Unauthorized Access" });
   }
 
   try {

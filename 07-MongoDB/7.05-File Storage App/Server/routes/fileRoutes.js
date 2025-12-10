@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.param("id", validateIdMiddleware);
 
-// Get File
+// Get file
 router.get("/:id", async (req, res) => {
   const db = req.db;
   const { id } = req.params;
@@ -37,7 +37,7 @@ router.get("/:id", async (req, res) => {
   });
 });
 
-// Upload File
+// Upload file
 router.post("/{:id}", async (req, res) => {
   const db = req.db;
   const user = req.user;
@@ -83,7 +83,7 @@ router.post("/{:id}", async (req, res) => {
   }
 });
 
-// Delete File
+// Delete file
 router.delete("/:id", async (req, res, next) => {
   const db = req.db;
   const { id } = req.params;
@@ -112,7 +112,7 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-// Rename File
+// Rename file
 router.patch("/:id", async (req, res, next) => {
   const db = req.db;
   const user = req.user;
