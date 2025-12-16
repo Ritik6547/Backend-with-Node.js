@@ -59,13 +59,12 @@ router.post("/{:id}", async (req, res, next) => {
   const dirCollection = db.collection("directories");
 
   try {
-    const parentDirInfo = await dirCollection.findOne({ _id: parentDirId });
+    const parentDirInfo = await dirCollection.findOne({
+      _id: parentDirId,
+      userId: user._id,
+    });
     if (!parentDirInfo) {
-      return res.status(404).json({ msg: "Parent Directory Not Found" });
-    }
-
-    if (parentDirInfo.userId.toString() !== user._id.toString()) {
-      return res.status(401).json({ msg: "Unauthorized Access" });
+      return res.status(404).json({ msg: "Directory Not Found" });
     }
 
     await dirCollection.insertOne({
