@@ -1,4 +1,4 @@
-import { Db, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 
 export default async function checkAuth(req, res, next) {
   const { uid } = req.cookies;

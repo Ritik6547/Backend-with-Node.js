@@ -1,14 +1,8 @@
 import express from "express";
 import path from "node:path";
-import { rm, writeFile } from "node:fs/promises";
+import { rm } from "node:fs/promises";
 import validateIdMiddleware from "../middleware/validateIdMiddleware.js";
-import { Db, ObjectId } from "mongodb";
-const { default: foldersData } = await import("../foldersDB.json", {
-  with: { type: "json" },
-});
-const { default: filesData } = await import("../filesDB.json", {
-  with: { type: "json" },
-});
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
@@ -110,24 +104,28 @@ router.patch("/:id", async (req, res, next) => {
   }
 });
 
-// Delete directory --> TODO :- fix this route
+// Delete directory
 router.delete("/:id", async (req, res, next) => {
   const db = req.db;
   const user = req.user;
   const { id } = req.params;
 
-  const dirInfo = db
-    .collection("directories")
-    .findOne({ _id: new ObjectId(id), userId: user._id });
+  const dirCollection = db.collection("directories");
+
+  const dirInfo = await dirCollection.findOne(
+    {
+      _id: new ObjectId(id),
+      userId: user._id,
+    },
+    { projection: { _id: 1 } }
+  );
+  console.log(dirInfo);
   if (!dirInfo) {
     return res.status(404).json({ msg: "Directory Not Found" });
   }
 
   try {
-    await deleteDirectory(id);
-
-    await writeFile("./foldersDB.json", JSON.stringify(foldersData));
-    await writeFile("./filesDB.json", JSON.stringify(filesData));
+    await deleteDirectory(dirInfo._id, db);
 
     res.status(200).json({ msg: "Directory Deleted Successfully" });
   } catch (err) {
@@ -135,35 +133,30 @@ router.delete("/:id", async (req, res, next) => {
   }
 });
 
-async function deleteDirectory(id) {
-  const dirIndex = foldersData.findIndex((folder) => folder.id === id);
+async function deleteDirectory(id, db) {
+  const storageRoot = path.resolve("./storage");
 
-  const dirInfo = foldersData[dirIndex];
-  const parentDirInfo = foldersData.find(
-    (folder) => folder.id === dirInfo.parentDirId
-  );
+  const fileCursor = db.collection("files").find({ parentDirId: id });
 
-  parentDirInfo.directories = parentDirInfo.directories.filter(
-    (dirId) => dirId !== id
-  );
+  for await (const file of fileCursor) {
+    const filename = `${file._id.toString()}${file.extension}`;
+    const filePath = path.join(storageRoot, filename);
 
-  for (const fileId of dirInfo.files) {
-    const fileIndex = filesData.findIndex((file) => file.id === fileId);
-    const fileInfo = filesData[fileIndex];
+    try {
+      await rm(filePath);
+    } catch (err) {
+      console.error("Failed to delete file:", filePath);
+    }
 
-    const filename = `${fileId}${fileInfo.extension}`;
-    const storageRoot = path.resolve("./storage");
-    const filePath = `${storageRoot}/${filename}`;
-
-    await rm(filePath);
-    filesData.splice(fileIndex, 1);
+    await db.collection("files").deleteOne({ _id: file._id });
   }
 
-  for (const dirId of dirInfo.directories) {
-    await deleteDirectory(dirId);
+  const dirCursor = db.collection("directories").find({ parentDirId: id });
+  for await (const dir of dirCursor) {
+    await deleteDirectory(dir._id, db);
   }
 
-  foldersData.splice(dirIndex, 1);
+  await db.collection("directories").deleteOne({ _id: id });
 }
 
 export default router;
