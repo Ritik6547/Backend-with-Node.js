@@ -1,6 +1,7 @@
 import express from "express";
 import checkAuth from "../middleware/auth.js";
 import { ObjectId } from "mongodb";
+import { client } from "../config/db.js";
 
 const router = express.Router();
 
@@ -12,9 +13,14 @@ router.post("/register", async (req, res, next) => {
   const dirCollection = db.collection("directories");
   const usersCollection = db.collection("users");
 
+  const session = client.startSession();
+
   try {
-    const user = await usersCollection.findOne({ email });
+    session.startTransaction();
+
+    const user = await usersCollection.findOne({ email }, { session });
     if (user) {
+      await session.abortTransaction();
       return res.status(409).json({
         error: "User already exits",
         msg: "A user with this email address already exists.",
@@ -24,28 +30,39 @@ router.post("/register", async (req, res, next) => {
     const rootDirId = new ObjectId();
     const userId = new ObjectId();
 
-    await dirCollection.insertOne({
-      _id: rootDirId,
-      name: `root-${email}`,
-      parentDirId: null,
-      userId,
-    });
+    await dirCollection.insertOne(
+      {
+        _id: rootDirId,
+        name: `root-${email}`,
+        parentDirId: null,
+        userId,
+      },
+      { session }
+    );
 
-    await usersCollection.insertOne({
-      _id: userId,
-      name,
-      email,
-      password,
-      rootDirId,
-    });
+    await usersCollection.insertOne(
+      {
+        _id: userId,
+        name,
+        email,
+        password,
+        rootDirId,
+      },
+      { session }
+    );
+
+    await session.commitTransaction();
 
     return res.status(201).json({ msg: "User Registered Successfully" });
   } catch (err) {
+    await session.abortTransaction();
     if (err.code === 121) {
       return res.status(400).json({ error: "Invalid Field Data" });
     } else {
       next(err);
     }
+  } finally {
+    await session.endSession();
   }
 });
 
