@@ -33,7 +33,8 @@ try {
 
   // Global Error Handler
   app.use((err, req, res, next) => {
-    res.status(err.status || 500).json({ msg: "Something went wrong" });
+    console.log(err);
+    res.status(err.status || 500).json({ error: "Something went wrong" });
   });
 
   app.listen(port, () => console.log("Server started"));
