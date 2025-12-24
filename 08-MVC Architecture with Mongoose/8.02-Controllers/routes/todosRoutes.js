@@ -1,5 +1,12 @@
 import express from "express";
-import { Db, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import {
+  addtodo,
+  deleteTodo,
+  getAllTodos,
+  getTodo,
+  updateTodo,
+} from "../controllers/todoController.js";
 
 const router = express.Router();
 
@@ -10,95 +17,7 @@ router.param("id", (req, res, next, id) => {
   next();
 });
 
-// Get all todos
-router.get("/", async (req, res) => {
-  const db = req.db;
-
-  try {
-    const allTodos = await db.collection("todos").find().toArray();
-
-    return res.status(200).json(allTodos);
-  } catch (err) {
-    return res.status(500).json({ error: "Failed to fetch todos" });
-  }
-});
-
-// Get a single todo
-router.get("/:id", async (req, res) => {
-  const db = req.db;
-  const { id } = req.params;
-
-  try {
-    const todo = await db
-      .collection("todos")
-      .findOne({ _id: new ObjectId(id) });
-    if (!todo) {
-      return res.status(404).json({ message: "Todo Not Found" });
-    }
-
-    return res.status(200).json(todo);
-  } catch (err) {
-    return res.status(500).json({ error: "Failed to fetch todo" });
-  }
-});
-
-// Create a new todo
-router.post("/", async (req, res) => {
-  const db = req.db;
-  const { title, completed } = req.body;
-
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
-  }
-
-  const todo = {
-    title,
-    completed: completed ?? false,
-  };
-
-  try {
-    await db.collection("todos").insertOne(todo);
-    return res.status(201).json({ message: "Todo Created Successfully" });
-  } catch (err) {
-    return res.status(500).json({ error: "Failed to create todo" });
-  }
-});
-
-// Update a todo
-router.put("/:id", async (req, res) => {
-  const db = req.db;
-  const { id } = req.params;
-  const updatedTodo = req.body;
-
-  try {
-    const result = await db
-      .collection("todos")
-      .updateOne({ _id: new ObjectId(id) }, { $set: updatedTodo });
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({ error: "Not updated" });
-    }
-    res.status(200).json({ message: "Todo updated successfully" });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to update todo" });
-  }
-});
-
-// Delete a todo
-router.delete("/:id", async (req, res) => {
-  const db = req.db;
-  const { id } = req.params;
-
-  try {
-    const result = await db
-      .collection("todos")
-      .deleteOne({ _id: new ObjectId(id) });
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ error: "Todo Not Found" });
-    }
-    res.status(200).json({ message: "Todo deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to delete todo" });
-  }
-});
+router.route("/").get(getAllTodos).post(addtodo);
+router.route("/:id").get(getTodo).put(updateTodo).delete(deleteTodo);
 
 export default router;
