@@ -5,11 +5,11 @@ import mongoose from "mongoose";
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
 
+  const session = await mongoose.startSession();
   try {
-    const session = await mongoose.startSession();
     session.startTransaction();
 
-    const user = await User.findOne({ email }, { session }).lean();
+    const user = await User.findOne({ email }).session(session).lean();
     if (user) {
       await session.abortTransaction();
       return res.status(409).json({
@@ -21,7 +21,7 @@ export const userRegister = async (req, res, next) => {
     const rootDirId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId();
 
-    await Directory.create(
+    await Directory.insertOne(
       {
         _id: rootDirId,
         name: `root-${email}`,
@@ -30,7 +30,7 @@ export const userRegister = async (req, res, next) => {
       { session }
     );
 
-    await User.create(
+    await User.insertOne(
       {
         _id: userId,
         name,

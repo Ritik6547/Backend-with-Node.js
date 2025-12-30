@@ -1,4 +1,4 @@
-import { rm } from "node:fs";
+import { rm } from "node:fs/promises";
 import path from "node:path";
 import Directory from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
@@ -89,7 +89,7 @@ export const deleteDirectory = async (req, res, next) => {
   })
     .select("_id")
     .lean();
-  console.log(dirInfo);
+
   if (!dirInfo) {
     return res.status(404).json({ msg: "Directory Not Found" });
   }

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const url = "mongodb://alpha:alpha@localhost:27017/storageApp?authSource=admin";
+const url = "mongodb://alpha:alpha@localhost:27017/storageApp";
 
 export async function connectDB() {
   try {
@@ -14,6 +14,6 @@ export async function connectDB() {
 
 process.on("SIGINT", async () => {
   await mongoose.disconnect();
-  console.log("Client Disconnected");
+  console.log("Database Disconnected");
   process.exit(0);
 });
