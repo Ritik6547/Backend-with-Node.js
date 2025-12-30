@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
@@ -6,9 +5,8 @@ import mongoose from "mongoose";
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  const session = await mongoose.startSession();
-
   try {
+    const session = await mongoose.startSession();
     session.startTransaction();
 
     const user = await User.findOne({ email }, { session }).lean();
@@ -20,8 +18,8 @@ export const userRegister = async (req, res, next) => {
       });
     }
 
-    const rootDirId = new ObjectId();
-    const userId = new ObjectId();
+    const rootDirId = new mongoose.Types.ObjectId();
+    const userId = new mongoose.Types.ObjectId();
 
     await Directory.create(
       {

@@ -5,17 +5,17 @@ const userSchema = new Schema(
     name: {
       type: String,
       required: true,
-      min: 3,
+      minLength: 3,
     },
     email: {
       type: String,
       required: true,
-      match: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$",
+      match: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$/,
     },
     password: {
       type: String,
       requited: true,
-      min: 3,
+      minLength: 3,
     },
     rootDirId: {
       type: Schema.Types.ObjectId,
