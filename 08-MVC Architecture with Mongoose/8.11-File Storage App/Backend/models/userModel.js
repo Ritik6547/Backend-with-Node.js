@@ -24,6 +24,7 @@ const userSchema = new Schema(
   },
   {
     strict: "throw",
+    collection: "users",
   }
 );
 

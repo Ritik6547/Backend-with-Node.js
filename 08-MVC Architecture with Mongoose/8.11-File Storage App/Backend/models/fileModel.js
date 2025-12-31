@@ -21,6 +21,7 @@ const fileSchema = new Schema(
   },
   {
     strict: "throw",
+    collection: "files",
   }
 );
 
