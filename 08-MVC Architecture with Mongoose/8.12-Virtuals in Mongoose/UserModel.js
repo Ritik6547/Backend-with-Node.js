@@ -76,6 +76,11 @@ const UserSchema = new Schema(
     toObject: {
       virtuals: true,
     },
+    methods: {
+      getSummary() {
+        return `${this.name} is ${this.age} years old.`;
+      },
+    },
   }
 );
 
