@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const UserSchema = new Schema(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -81,13 +81,29 @@ const UserSchema = new Schema(
         return `${this.name} is ${this.age} years old.`;
       },
     },
+    statics: {
+      findOneByName(name) {
+        return this.findOne({ name });
+      },
+    },
   }
 );
 
-UserSchema.virtual("emailDomain").get(function () {
+// Vitual Properties --> Derived properties
+userSchema.virtual("emailDomain").get(function () {
   return this.email.split("@")[1];
 });
 
-const User = mongoose.model("User", UserSchema);
+// Custom Methods on Documents
+userSchema.methods.hello = function () {
+  return `Hii ${this.name}`;
+};
+
+// Custom Static Methods on Model
+userSchema.statics.findByEmail = function (email) {
+  return this.findOne({ email });
+};
+
+const User = mongoose.model("User", userSchema);
 
 export default User;
