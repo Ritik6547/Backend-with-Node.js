@@ -9,35 +9,30 @@ export const userRegister = async (req, res, next) => {
   try {
     session.startTransaction();
 
-    const user = await User.findOne({ email }).session(session).lean();
-    if (user) {
-      await session.abortTransaction();
-      return res.status(409).json({
-        error: "User already exits",
-        msg: "A user with this email address already exists.",
-      });
-    }
-
     const rootDirId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId();
 
-    await Directory.insertOne(
-      {
-        _id: rootDirId,
-        name: `root-${email}`,
-        userId,
-      },
+    await Directory.create(
+      [
+        {
+          _id: rootDirId,
+          name: `root-${email}`,
+          userId,
+        },
+      ],
       { session }
     );
 
-    await User.insertOne(
-      {
-        _id: userId,
-        name,
-        email,
-        password,
-        rootDirId,
-      },
+    await User.create(
+      [
+        {
+          _id: userId,
+          name,
+          email,
+          password,
+          rootDirId,
+        },
+      ],
       { session }
     );
 
@@ -48,6 +43,11 @@ export const userRegister = async (req, res, next) => {
     await session.abortTransaction();
     if (err.code === 121) {
       return res.status(400).json({ error: "Invalid Field Data" });
+    } else if (err.code === 11000 && err.keyValue.email) {
+      return res.status(409).json({
+        error: "This email already exists",
+        msg: "A user with this email address already exists.",
+      });
     } else {
       next(err);
     }
