@@ -6,9 +6,10 @@ export default async function checkAuth(req, res, next) {
   if (!uid) {
     return res.status(401).json({ error: "Not Logged In" });
   }
+  const { id, expiry: expiryTime } = JSON.parse(
+    Buffer.from(uid, "base64url").toString()
+  );
 
-  const id = uid.substring(0, 24);
-  const expiryTime = parseInt(uid.substring(24), 16);
   const currentTime = Math.round(Date.now() / 1000);
 
   if (currentTime > expiryTime) {

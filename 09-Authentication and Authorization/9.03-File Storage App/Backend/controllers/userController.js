@@ -67,13 +67,17 @@ export const userLogin = async (req, res, next) => {
 
   const cookiePayload = {
     id: user._id.toString(),
-    expiry: Math.round(Date.now() / 1000) + 10,
+    expiry: Math.round(Date.now() / 1000 + 10),
   };
 
-  res.cookie("uid", JSON.stringify(cookiePayload), {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7 * 1000,
-  });
+  res.cookie(
+    "uid",
+    Buffer.from(JSON.stringify(cookiePayload)).toString("base64url"),
+    {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7 * 1000,
+    }
+  );
 
   res.json({ msg: "Logged In" });
 };
