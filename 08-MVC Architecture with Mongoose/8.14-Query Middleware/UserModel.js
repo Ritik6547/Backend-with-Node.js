@@ -48,48 +48,10 @@ const userSchema = new Schema(
     timestamps: true,
     versionKey: "__v", // false
     collection: "users",
-    virtuals: {
-      isAdult: {
-        get() {
-          return this.age >= 18;
-        },
-      },
-      hobbiesString: {
-        get() {
-          let str = "";
-          this.hobbies.forEach((hobby, i) => {
-            str += hobby;
-            if (i != this.hobbies.length - 1) {
-              str += ", ";
-            }
-          });
-          return str;
-        },
-        set(value) {
-          const newHobbies = value.split(", ");
-          this.hobbies = [...this.hobbies, ...newHobbies];
-        },
-      },
-    },
-    toJSON: {
-      virtuals: true,
-    },
-    toObject: {
-      virtuals: true,
-    },
-    methods: {
-      getSummary() {
-        return `${this.name} is ${this.age} years old.`;
-      },
-    },
-    statics: {
-      findOneByName(name) {
-        return this.findOne({ name });
-      },
-    },
   }
 );
 
+/* Query Middleware */
 // ["find","findOne"] or /^find/
 userSchema.pre("find", function () {
   console.log("pre find hook");
