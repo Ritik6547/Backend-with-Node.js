@@ -1,6 +1,9 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
+import crypto from "node:crypto";
+
+export const secretKey = "secret123";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -65,19 +68,26 @@ export const userLogin = async (req, res, next) => {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
 
-  const cookiePayload = {
+  const cookiePayload = JSON.stringify({
     id: user._id.toString(),
-    expiry: Math.round(Date.now() / 1000 + 10),
-  };
+    expiry: Math.round(Date.now() / 1000 + 60),
+  });
 
-  res.cookie(
-    "uid",
-    Buffer.from(JSON.stringify(cookiePayload)).toString("base64url"),
-    {
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7 * 1000,
-    }
-  );
+  const signature = crypto
+    .createHash("sha256")
+    .update(secretKey)
+    .update(cookiePayload)
+    .update(secretKey)
+    .digest("base64url");
+
+  const signedCookiePayload = `${Buffer.from(cookiePayload).toString(
+    "base64url"
+  )}.${signature}`;
+
+  res.cookie("token", signedCookiePayload, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 24 * 7 * 1000,
+  });
 
   res.json({ msg: "Logged In" });
 };
