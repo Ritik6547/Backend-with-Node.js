@@ -6,15 +6,20 @@ const fileBuffer = await readFile("./loan-agreement.md");
 
 const secret_key = "secret123";
 
-const signature = crypto
-  .createHash("sha256")
-  .update(fileBuffer)
-  .update(secret_key)
-  .digest("base64");
+// const hmac = crypto
+//   .createHash("sha256")
+//   .update(fileBuffer)
+//   .update(secret_key)
+//   .digest("base64url");
 
-console.log(signature);
+const hmac = crypto
+  .createHmac("sha256", secret_key)
+  .update(fileBuffer)
+  .digest("base64url");
+
+console.log(hmac);
 
 const writeStream = createWriteStream("signed-loan-agreement.md");
 
 writeStream.write(fileBuffer);
-writeStream.end(signature);
+writeStream.end(hmac);
