@@ -1,9 +1,6 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
-import crypto from "node:crypto";
-
-export const secretKey = "secret123";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -73,19 +70,18 @@ export const userLogin = async (req, res, next) => {
     expiry: Math.round(Date.now() / 1000 + 60),
   });
 
-  const signature = crypto
-    .createHash("sha256")
-    .update(secretKey)
-    .update(cookiePayload)
-    .update(secretKey)
-    .digest("base64url");
+  // const signature = crypto
+  //   .createHmac("sha256", secretKey)
+  //   .update(cookiePayload)
+  //   .digest("base64url");
 
-  const signedCookiePayload = `${Buffer.from(cookiePayload).toString(
-    "base64url"
-  )}.${signature}`;
+  // const signedCookiePayload = `${Buffer.from(cookiePayload).toString(
+  //   "base64url"
+  // )}.${signature}`;
 
-  res.cookie("token", signedCookiePayload, {
+  res.cookie("token", Buffer.from(cookiePayload).toString("base64url"), {
     httpOnly: true,
+    signed: true,
     maxAge: 60 * 60 * 24 * 7 * 1000,
   });
 

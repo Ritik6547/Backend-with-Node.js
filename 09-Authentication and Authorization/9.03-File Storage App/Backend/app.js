@@ -7,6 +7,8 @@ import userRoutes from "./routes/userRoutes.js";
 import checkAuth from "./middleware/auth.js";
 import { connectDB } from "./config/db.js";
 
+const secretKey = "secret123";
+
 await connectDB();
 
 const app = express();
@@ -19,7 +21,7 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(secretKey));
 
 app.use("/directory", checkAuth, directoryRoutes);
 app.use("/file", checkAuth, fileRoutes);
