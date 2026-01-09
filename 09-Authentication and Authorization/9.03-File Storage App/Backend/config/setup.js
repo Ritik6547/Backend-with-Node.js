@@ -1,9 +1,13 @@
-import { connectDB, client } from "./db.js";
+import mongoose from "mongoose";
+import { connectDB } from "./db.js";
+
+await connectDB();
+
+const client = mongoose.connection.getClient();
+const db = mongoose.connection.db;
 
 try {
-  const db = await connectDB();
-
-  const command = "collMod";
+  const command = "collMod"; // create
 
   await db.command({
     [command]: "users",
@@ -30,6 +34,7 @@ try {
           rootDirId: {
             bsonType: "objectId",
           },
+          __v: { bsonType: "int" },
         },
         additionalProperties: false,
       },
@@ -57,6 +62,7 @@ try {
           userId: {
             bsonType: "objectId",
           },
+          __v: { bsonType: "int" },
         },
         additionalProperties: false,
       },
@@ -87,6 +93,7 @@ try {
           userId: {
             bsonType: "objectId",
           },
+          __v: { bsonType: "int" },
         },
       },
     },

@@ -5,10 +5,12 @@ import crypto from "node:crypto";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
+
+  const salt = crypto.randomBytes(16);
+
   const hashedPassword = crypto
-    .createHash("sha256")
-    .update(password)
-    .digest("hex");
+    .pbkdf2Sync(password, salt, 100000, 32, "sha256")
+    .toString("base64url");
 
   const session = await mongoose.startSession();
   try {
@@ -34,7 +36,7 @@ export const userRegister = async (req, res, next) => {
           _id: userId,
           name,
           email,
-          password: hashedPassword,
+          password: `${salt.toString("base64url")}.${hashedPassword}`,
           rootDirId,
         },
       ],
@@ -64,17 +66,19 @@ export const userRegister = async (req, res, next) => {
 export const userLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const recievedPasswordHash = crypto
-    .createHash("sha256")
-    .update(password)
-    .digest("hex");
-
-  const user = await User.findOne({
-    email,
-    password: recievedPasswordHash,
-  }).lean();
+  const user = await User.findOne({ email }).lean();
 
   if (!user) {
+    return res.status(404).json({ error: "Invalid Credentials" });
+  }
+
+  const [salt, hashedPassword] = user.password.split(".");
+
+  const recievedPasswordHash = crypto
+    .pbkdf2Sync(password, Buffer.from(salt, "base64url"), 100000, 32, "sha256")
+    .toString("base64url");
+
+  if (recievedPasswordHash !== hashedPassword) {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
 
