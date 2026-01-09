@@ -1,9 +1,14 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
+import crypto from "node:crypto";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
+  const hashedPassword = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("hex");
 
   const session = await mongoose.startSession();
   try {
@@ -29,7 +34,7 @@ export const userRegister = async (req, res, next) => {
           _id: userId,
           name,
           email,
-          password,
+          password: hashedPassword,
           rootDirId,
         },
       ],
@@ -59,7 +64,15 @@ export const userRegister = async (req, res, next) => {
 export const userLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email, password }).lean();
+  const recievedPasswordHash = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("hex");
+
+  const user = await User.findOne({
+    email,
+    password: recievedPasswordHash,
+  }).lean();
 
   if (!user) {
     return res.status(404).json({ error: "Invalid Credentials" });
@@ -98,7 +111,7 @@ export const userLogout = (req, res) => {
   // res.cookie("uid", "", {
   //   maxAge: 0,
   // });
-  res.clearCookie("uid");
+  res.clearCookie("token");
 
   res.status(200).json({ msg: "Logged Out" });
 };

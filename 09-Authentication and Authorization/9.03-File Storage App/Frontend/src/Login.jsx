@@ -7,7 +7,7 @@ const Login = () => {
 
   const [formData, setFormData] = useState({
     email: "test@gmail.com",
-    password: "test",
+    password: "1234",
   });
 
   // serverError will hold the error message from the server
