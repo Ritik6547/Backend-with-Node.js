@@ -1,16 +1,12 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
-import crypto from "node:crypto";
+import bcrypt from "bcrypt";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  const salt = crypto.randomBytes(16);
-
-  const hashedPassword = crypto
-    .pbkdf2Sync(password, salt, 100000, 32, "sha256")
-    .toString("base64url");
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const session = await mongoose.startSession();
   try {
@@ -36,7 +32,7 @@ export const userRegister = async (req, res, next) => {
           _id: userId,
           name,
           email,
-          password: `${salt.toString("base64url")}.${hashedPassword}`,
+          password: hashedPassword,
           rootDirId,
         },
       ],
@@ -72,13 +68,8 @@ export const userLogin = async (req, res, next) => {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
 
-  const [salt, hashedPassword] = user.password.split(".");
-
-  const recievedPasswordHash = crypto
-    .pbkdf2Sync(password, Buffer.from(salt, "base64url"), 100000, 32, "sha256")
-    .toString("base64url");
-
-  if (recievedPasswordHash !== hashedPassword) {
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
 
