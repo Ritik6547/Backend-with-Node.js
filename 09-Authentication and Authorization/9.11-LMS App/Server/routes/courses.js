@@ -8,7 +8,6 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const courses = await Course.find();
-    console.log(req.signedCookies);
     if (Object.keys(req.signedCookies).length === 0) {
       const session = await Session.create({});
       res.cookie("sid", session.id, {
@@ -16,10 +15,6 @@ router.get("/", async (req, res) => {
         signed: true,
         maxAge: 1000 * 60 * 60,
       });
-    } else {
-      if (req.signedCookies.sid === false) {
-        res.clearCookie("sid");
-      }
     }
     res.json(courses);
   } catch (error) {
