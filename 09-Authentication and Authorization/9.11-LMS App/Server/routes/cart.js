@@ -1,4 +1,5 @@
 import express from "express";
+import Session from "../models/Session.js";
 
 const router = express.Router();
 
@@ -9,7 +10,22 @@ router.get("/", async (req, res) => {
 
 // Add to cart
 router.post("/", async (req, res) => {
-  //Add your code here
+  const { courseId } = req.body;
+  const { sid } = req.signedCookies;
+
+  const result = await Session.updateOne(
+    { _id: sid, "data.cart.courseId": courseId },
+    { $inc: { "data.cart.$.quantity": 1 } }
+  );
+
+  if (result.matchedCount === 0) {
+    await Session.updateOne(
+      { _id: sid },
+      { $push: { "data.cart": { courseId, quantity: 1 } } }
+    );
+  }
+
+  res.status(201).json({ message: "Course added to cart" });
 });
 
 // Remove course from cart

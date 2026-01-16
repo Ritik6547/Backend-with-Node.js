@@ -1,7 +1,8 @@
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { addToCartApi } from "../api/cartApi";
 
-export default function CourseCard({ name, price, image }) {
+export default function CourseCard({ _id, name, price, image }) {
   const { addToCart } = useCart();
 
   return (
@@ -16,9 +17,12 @@ export default function CourseCard({ name, price, image }) {
             ₹{price}
           </span>
           <button
-            onClick={() => addToCart({ name, price, image })}
-            className="flex cursor-pointer items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
+            onClick={async () => {
+              addToCart({ name, price, image });
+              const data = await addToCartApi(_id);
+              console.log(data);
+            }}
+            className="flex cursor-pointer items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
             <ShoppingCart className="w-5 h-5" />
             <span>Add to Cart</span>
           </button>
