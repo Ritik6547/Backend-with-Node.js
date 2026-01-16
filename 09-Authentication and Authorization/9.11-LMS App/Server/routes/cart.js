@@ -6,7 +6,6 @@ const router = express.Router();
 
 // GET cart
 router.get("/", async (req, res) => {
-  //Add your code here
   const { sid } = req.signedCookies;
 
   const session = await Session.findById(sid);
@@ -57,11 +56,15 @@ router.post("/", async (req, res) => {
 // Remove course from cart
 router.delete("/:courseId", async (req, res) => {
   //Add your code here
-});
+  const { sid } = req.signedCookies;
+  const { courseId } = req.params;
 
-// Clear cart
-router.delete("/", async (req, res) => {
-  //Add your code here
+  const result = await Session.updateOne(
+    { _id: sid },
+    { $pull: { "data.cart": { courseId } } }
+  );
+
+  res.status(200).json({ message: "Course deleted successfully" });
 });
 
 export default router;

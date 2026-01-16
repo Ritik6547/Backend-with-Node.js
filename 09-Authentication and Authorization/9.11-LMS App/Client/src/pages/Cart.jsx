@@ -31,7 +31,7 @@ export default function Cart() {
       </h1>
       <div className="bg-white dark:bg-gray-800 shadow-lg overflow-hidden divide-y divide-gray-200 rounded-xl dark:divide-gray-700">
         {cart.map((item) => (
-          <CartItem key={item.name} item={item} />
+          <CartItem key={item._id} item={item} />
         ))}
       </div>
       <div className="py-6 bg-gray-50 dark:bg-gray-900">

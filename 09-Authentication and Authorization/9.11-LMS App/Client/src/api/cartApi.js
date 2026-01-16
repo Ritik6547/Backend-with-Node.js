@@ -9,3 +9,8 @@ export const addToCartApi = async (courseId) => {
   const { data } = await axiosInstance.post("/cart", { courseId });
   return data;
 };
+
+export const deleteCartItemApi = async (courseId) => {
+  const { data } = await axiosInstance.delete(`/cart/${courseId}`);
+  return data;
+};
