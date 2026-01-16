@@ -8,12 +8,22 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { getCartApi } from "../api/cartApi";
 
 export default function Navbar({ darkMode, toggleDarkMode }) {
-  const { cartCount } = useCart();
+  const { cartCount, setCart } = useCart();
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    async function fetchCartData() {
+      const data = await getCartApi();
+      setCart(data);
+    }
+
+    fetchCartData();
+  }, []);
 
   return (
     <nav className="sticky top-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-lg mb-4">
@@ -31,8 +41,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
               className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800"
               aria-label={
                 darkMode ? "Switch to light mode" : "Switch to dark mode"
-              }
-            >
+              }>
               {darkMode ? (
                 <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               ) : (
@@ -42,8 +51,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
 
             <Link
               to="/cart"
-              className="relative p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800"
-            >
+              className="relative p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800">
               <ShoppingCart className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -62,13 +70,11 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                 enterTo="transform opacity-100 scale-100"
                 leave="transition ease-in duration-75"
                 leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
+                leaveTo="transform opacity-0 scale-95">
                 <MenuItems
                   transition
                   anchor="bottom end"
-                  className="absolute right-0 mt-2 w-48 origin-top-right bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-gray-300 dark:ring-gray-900 ring-opacity-5 focus:outline-none"
-                >
+                  className="absolute right-0 mt-2 w-48 origin-top-right bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-gray-300 dark:ring-gray-900 ring-opacity-5 focus:outline-none">
                   <div className="p-1">
                     {user ? (
                       <>
@@ -81,8 +87,7 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                         <MenuItem>
                           <button
                             onClick={logout}
-                            className={`group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:dark:bg-white/10 data-[focus]:bg-gray-200 dark:text-gray-200`}
-                          >
+                            className={`group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:dark:bg-white/10 data-[focus]:bg-gray-200 dark:text-gray-200`}>
                             Sign out
                           </button>
                         </MenuItem>
@@ -92,16 +97,14 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
                         <MenuItem>
                           <Link
                             to="/login"
-                            className={`group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:dark:bg-white/10 data-[focus]:bg-gray-200 dark:text-gray-200`}
-                          >
+                            className={`group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:dark:bg-white/10 data-[focus]:bg-gray-200 dark:text-gray-200`}>
                             Sign in
                           </Link>
                         </MenuItem>
                         <MenuItem>
                           <Link
                             to="/register"
-                            className={`group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:dark:bg-white/10 data-[focus]:bg-gray-200 dark:text-gray-200`}
-                          >
+                            className={`group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:dark:bg-white/10 data-[focus]:bg-gray-200 dark:text-gray-200`}>
                             Create account
                           </Link>
                         </MenuItem>

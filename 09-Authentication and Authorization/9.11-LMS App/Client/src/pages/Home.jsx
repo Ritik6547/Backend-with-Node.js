@@ -3,7 +3,7 @@ import { getAllCoursesApi } from "../api/courseApi";
 
 const courses = await getAllCoursesApi();
 
-console.log(courses);
+// console.log(courses);
 
 export default function Home() {
   return (

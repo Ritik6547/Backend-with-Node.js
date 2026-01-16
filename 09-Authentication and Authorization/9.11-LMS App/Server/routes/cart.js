@@ -1,11 +1,37 @@
 import express from "express";
 import Session from "../models/Session.js";
+import Course from "../models/Course.js";
 
 const router = express.Router();
 
 // GET cart
 router.get("/", async (req, res) => {
   //Add your code here
+  const { sid } = req.signedCookies;
+
+  const session = await Session.findById(sid);
+  if (!session) {
+    return res.status(404).json({ error: "Not Found" });
+  }
+
+  const courseIds = session.data.cart.map((item) => item.courseId);
+
+  const courses = await Course.find({ _id: { $in: courseIds } })
+    .select("_id name price image")
+    .lean();
+
+  const courseMap = new Map(courses.map((c) => [c._id.toString(), c]));
+
+  const cartCourses = session.data.cart
+    .map((item) => {
+      const course = courseMap.get(item.courseId.toString());
+      if (!course) return null;
+
+      return { ...course, quantity: item.quantity };
+    })
+    .filter(Boolean);
+
+  res.status(200).json(cartCourses);
 });
 
 // Add to cart
