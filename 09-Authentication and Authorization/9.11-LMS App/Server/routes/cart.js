@@ -40,13 +40,13 @@ router.post("/", async (req, res) => {
 
   const result = await Session.updateOne(
     { _id: sid, "data.cart.courseId": courseId },
-    { $inc: { "data.cart.$.quantity": 1 } }
+    { $inc: { "data.cart.$.quantity": 1 } },
   );
 
   if (result.matchedCount === 0) {
     await Session.updateOne(
       { _id: sid },
-      { $push: { "data.cart": { courseId, quantity: 1 } } }
+      { $push: { "data.cart": { courseId, quantity: 1 } } },
     );
   }
 
@@ -55,14 +55,17 @@ router.post("/", async (req, res) => {
 
 // Remove course from cart
 router.delete("/:courseId", async (req, res) => {
-  //Add your code here
   const { sid } = req.signedCookies;
   const { courseId } = req.params;
 
   const result = await Session.updateOne(
     { _id: sid },
-    { $pull: { "data.cart": { courseId } } }
+    { $pull: { "data.cart": { courseId } } },
   );
+
+  if (result.modifiedCount === 0) {
+    return res.status(404).json({ message: "Course Not Found" });
+  }
 
   res.status(200).json({ message: "Course deleted successfully" });
 });
