@@ -1,12 +1,17 @@
 import { useState } from "react";
+import { registerApi } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
 export default function Register() {
-  const [name, setName] = useState("Shubham Semwal");
-  const [email, setEmail] = useState("shubham@gmail.com");
-  const [password, setPassword] = useState("shubham@123");
+  const [name, setName] = useState("test");
+  const [email, setEmail] = useState("test@gmail.com");
+  const [password, setPassword] = useState("test@123");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ name, email, password });
+    const data = await registerApi({ name, email, password });
+    console.log(data);
+    navigate("/login");
   };
 
   return (
@@ -19,8 +24,7 @@ export default function Register() {
           <div>
             <label
               htmlFor="name"
-              className="block font-medium text-gray-700 dark:text-gray-300"
-            >
+              className="block font-medium text-gray-700 dark:text-gray-300">
               Name
             </label>
             <input
@@ -34,8 +38,7 @@ export default function Register() {
           <div>
             <label
               htmlFor="email"
-              className="block font-medium text-gray-700 dark:text-gray-300"
-            >
+              className="block font-medium text-gray-700 dark:text-gray-300">
               Email
             </label>
             <input
@@ -51,8 +54,7 @@ export default function Register() {
           <div>
             <label
               htmlFor="password"
-              className="block font-medium text-gray-700 dark:text-gray-300"
-            >
+              className="block font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
             <input
@@ -67,8 +69,7 @@ export default function Register() {
 
           <button
             type="submit"
-            className="w-full flex justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
+            className="w-full flex justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Create account
           </button>
         </form>

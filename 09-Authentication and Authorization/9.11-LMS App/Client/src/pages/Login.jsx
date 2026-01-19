@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { loginApi } from "../api/authApi";
 export default function Login() {
-  const [email, setEmail] = useState("shubham@gmail.com");
-  const [password, setPassword] = useState("shubham@123");
+  const [email, setEmail] = useState("test@gmail.com");
+  const [password, setPassword] = useState("test@123");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log({ email, password });
+
+    const data = await loginApi({ email, password });
+    console.log(data);
   };
 
   return (
@@ -18,8 +22,7 @@ export default function Login() {
           <div>
             <label
               htmlFor="email"
-              className="block font-medium text-gray-700 dark:text-gray-300"
-            >
+              className="block font-medium text-gray-700 dark:text-gray-300">
               Email
             </label>
             <input
@@ -35,8 +38,7 @@ export default function Login() {
           <div>
             <label
               htmlFor="password"
-              className="block font-medium text-gray-700 dark:text-gray-300"
-            >
+              className="block font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
             <input
@@ -51,8 +53,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full flex justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
+            className="w-full flex justify-center px-3 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Sign in
           </button>
         </form>
