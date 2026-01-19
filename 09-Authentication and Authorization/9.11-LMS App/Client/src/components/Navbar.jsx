@@ -11,15 +11,22 @@ import {
 import { Fragment, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getCartApi } from "../api/cartApi";
+import { userProfileApi } from "../api/authApi";
 
 export default function Navbar({ darkMode, toggleDarkMode }) {
   const { cartCount, setCart } = useCart();
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
 
   useEffect(() => {
     async function fetchCartData() {
-      const data = await getCartApi();
-      setCart(data);
+      try {
+        const userProfile = await userProfileApi();
+        setUser(userProfile);
+        const data = await getCartApi();
+        setCart(data);
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     fetchCartData();

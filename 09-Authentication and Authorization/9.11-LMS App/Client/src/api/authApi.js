@@ -9,3 +9,8 @@ export const loginApi = async (userData) => {
   const { data } = await axiosInstance.post("/auth/login", userData);
   return data;
 };
+
+export const userProfileApi = async () => {
+  const { data } = await axiosInstance.get("/auth/profile");
+  return data;
+};

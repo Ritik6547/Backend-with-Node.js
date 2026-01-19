@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/User.js";
+import Session from "../models/Session.js";
 
 const router = express.Router();
 
@@ -42,9 +43,10 @@ router.post("/register", async (req, res) => {
 
 // Login user
 router.post("/login", async (req, res) => {
+  const {sid} = req.signedCookies;
   try {
     const { email, password } = req.body;
-
+    
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
@@ -57,9 +59,30 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    const session = await Session.findById(sid);
+
+    if(!session) {
+      const newSession = await Session.create({userId : user._id});
+      res.cookie("sid", newSession.id, {
+        httpOnly: true,
+        signed: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
+    } else {
+      session.expires = Math.round(Date.now() / 1000) + (60 * 60 * 24 * 7);
+      session.userId = user._id;
+
+      await session.save();
+
+      res.cookie("sid", session.id, {
+        httpOnly : true,
+        signed : true,
+        maxAge : 1000 * 60 * 60 * 24 * 7
+      })
+    }
+
     res.json({
       message: "Login successful",
-      token,
       user: {
         id: user._id,
         email: user.email,
@@ -70,5 +93,23 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.get("/profile",async (req, res) => {
+  const {sid} = req.signedCookies;
+
+  const session = await Session.findById(sid);
+  if(!session) {
+    res.clearCookie("sid");
+    return res.status(404).json({message : "Not Logged In"})
+  }
+
+  if(!session.userId) {
+    return res.status(404).json({message : "Not Logged In"});
+  }
+
+  const user = await User.findById(session.userId).lean();
+
+  res.status(200).json({name : user.name, email : user.email})
+})
 
 export default router;
