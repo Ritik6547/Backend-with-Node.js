@@ -20,10 +20,10 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
   useEffect(() => {
     async function fetchCartData() {
       try {
-        const userProfile = await userProfileApi();
-        setUser(userProfile);
         const data = await getCartApi();
         setCart(data);
+        const userProfile = await userProfileApi();
+        setUser(userProfile);
       } catch (err) {
         console.log(err);
       }

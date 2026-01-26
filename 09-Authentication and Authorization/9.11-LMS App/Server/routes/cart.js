@@ -1,6 +1,7 @@
 import express from "express";
 import Session from "../models/Session.js";
 import Course from "../models/Course.js";
+import Cart from "../models/Cart.js";
 
 const router = express.Router();
 
@@ -8,35 +9,57 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   const { sid } = req.signedCookies;
 
-  const session = await Session.findById(sid);
+  const session = await Session.findById(sid).populate("data.cart.courseId");
   if (!session) {
     return res.status(404).json({ error: "Not Found" });
   }
 
-  const courseIds = session.data.cart.map((item) => item.courseId);
+  if (!session.userId) {
+    const cartCourses = session.data.cart.map((item) => {
+      const { _id, name, price, image } = item.courseId;
+      const quantity = item.quantity;
 
-  const courses = await Course.find({ _id: { $in: courseIds } })
-    .select("_id name price image")
-    .lean();
+      return { id: _id, name, price, image, quantity };
+    });
 
-  const courseMap = new Map(courses.map((c) => [c._id.toString(), c]));
+    return res.status(200).json(cartCourses);
+  }
 
-  const cartCourses = session.data.cart
-    .map((item) => {
-      const course = courseMap.get(item.courseId.toString());
-      if (!course) return null;
+  const data = await Cart.findOne({ userId: session.userId }).populate(
+    "courses.courseId",
+  );
 
-      return { ...course, quantity: item.quantity };
-    })
-    .filter(Boolean);
+  const cartCourses = data.courses.map((item) => {
+    const { _id, name, price, image } = item.courseId;
+    const quantity = item.quantity;
 
-  res.status(200).json(cartCourses);
+    return { id: _id, name, price, image, quantity };
+  });
+
+  return res.status(200).json(cartCourses);
 });
 
 // Add to cart
 router.post("/", async (req, res) => {
   const { courseId } = req.body;
   const { sid } = req.signedCookies;
+
+  const session = await Session.findById(sid);
+  if (session.userId) {
+    const result = await Cart.updateOne(
+      { userId: session.userId, "courses.courseId": courseId },
+      { $inc: { "courses.$.quantity": 1 } },
+    );
+
+    if (result.matchedCount === 0) {
+      await Cart.updateOne(
+        { userId: session.userId },
+        { $push: { courses: { courseId, quantity: 1 } } },
+      );
+    }
+
+    return res.status(201).json({ message: "Course added to cart" });
+  }
 
   const result = await Session.updateOne(
     { _id: sid, "data.cart.courseId": courseId },
