@@ -71,10 +71,17 @@ router.post("/login", async (req, res) => {
       session.expires = Math.round(Date.now() / 1000) + 60 * 60 * 24 * 7;
       session.userId = user._id;
 
-      const result = await Cart.create({
-        userId: user._id,
-        courses: session.data.cart,
-      });
+      const userCart = await Cart.findOne({ userId: user._id });
+
+      if (!userCart) {
+        const result = await Cart.create({
+          userId: user._id,
+          courses: session.data.cart,
+        });
+      } else {
+        userCart.courses.push(...session.data.cart);
+        await userCart.save();
+      }
 
       session.data = {};
 
@@ -100,6 +107,13 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/logout", async (req, res) => {
+  const { sid } = req.signedCookies;
+  await Session.findByIdAndDelete(sid);
+
+  res.status(200).json({ message: "Logged out successfully" });
+});
+
 router.get("/profile", async (req, res) => {
   const { sid } = req.signedCookies;
 
@@ -110,6 +124,11 @@ router.get("/profile", async (req, res) => {
   }
 
   if (!session.userId) {
+    return res.status(404).json({ message: "Not Logged In" });
+  }
+
+  if (session.expires < Math.round(Date.now() / 1000)) {
+    await session.deleteOne();
     return res.status(404).json({ message: "Not Logged In" });
   }
 
