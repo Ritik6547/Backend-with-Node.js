@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import Session from "../models/sessionModel.js";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -73,21 +74,9 @@ export const userLogin = async (req, res, next) => {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
 
-  const cookiePayload = JSON.stringify({
-    id: user._id.toString(),
-    expiry: Math.round(Date.now() / 1000 + 60),
-  });
+  const session = await Session.create({ userId: user._id });
 
-  // const signature = crypto
-  //   .createHmac("sha256", secretKey)
-  //   .update(cookiePayload)
-  //   .digest("base64url");
-
-  // const signedCookiePayload = `${Buffer.from(cookiePayload).toString(
-  //   "base64url"
-  // )}.${signature}`;
-
-  res.cookie("token", Buffer.from(cookiePayload).toString("base64url"), {
+  res.cookie("sid", session.id, {
     httpOnly: true,
     signed: true,
     maxAge: 60 * 60 * 24 * 7 * 1000,
@@ -103,10 +92,10 @@ export const getUserInfo = (req, res) => {
 };
 
 export const userLogout = (req, res) => {
-  // res.cookie("uid", "", {
+  // res.cookie("sid", "", {
   //   maxAge: 0,
   // });
-  res.clearCookie("token");
+  res.clearCookie("sid");
 
   res.status(200).json({ msg: "Logged Out" });
 };
