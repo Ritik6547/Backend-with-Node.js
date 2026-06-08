@@ -72,6 +72,12 @@ export const userLogin = async (req, res, next) => {
     return res.status(401).json({ error: "Invalid Credentials" });
   }
 
+  // Restrict Multiple Device Access
+  const allSessions = await Session.find({ userId: user._id });
+  if (allSessions.length == 2) {
+    await allSessions[0].deleteOne();
+  }
+
   const session = await Session.create({ userId: user._id });
 
   res.cookie("sid", session.id, {
