@@ -23,7 +23,7 @@ export const userRegister = async (req, res, next) => {
           userId,
         },
       ],
-      { session }
+      { session },
     );
 
     await User.create(
@@ -36,7 +36,7 @@ export const userRegister = async (req, res, next) => {
           rootDirId,
         },
       ],
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -62,13 +62,13 @@ export const userRegister = async (req, res, next) => {
 export const userLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email }).lean();
+  const user = await User.findOne({ email });
 
   if (!user) {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
 
-  const isValidPassword = await bcrypt.compare(password, user.password);
+  const isValidPassword = await user.comparePassword(password);
   if (!isValidPassword) {
     return res.status(404).json({ error: "Invalid Credentials" });
   }
