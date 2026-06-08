@@ -92,7 +92,33 @@ function DirectoryHeader({
   };
 
   // -------------------------------------------
-  // 4. Close menu on outside click
+  // 4. Logout handler
+  // -------------------------------------------
+  const handleLogoutAll = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/user/logout-all`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        console.log("Logged out successfully");
+        // Optionally reset local state
+        setLoggedIn(false);
+        setUserName("Guest User");
+        setUserEmail("guest@example.com");
+        navigate("/login");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setShowUserMenu(false);
+    }
+  };
+
+  // -------------------------------------------
+  // 5. Close menu on outside click
   // -------------------------------------------
   useEffect(() => {
     function handleDocumentClick(e) {
@@ -163,6 +189,12 @@ function DirectoryHeader({
                     onClick={handleLogout}>
                     <FaSignOutAlt className="menu-item-icon" />
                     <span>Logout</span>
+                  </div>
+                  <div
+                    className="user-menu-item login-btn"
+                    onClick={handleLogoutAll}>
+                    <FaSignOutAlt className="menu-item-icon" />
+                    <span>Logout All</span>
                   </div>
                 </>
               ) : (
