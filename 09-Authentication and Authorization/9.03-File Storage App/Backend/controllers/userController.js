@@ -73,8 +73,10 @@ export const userLogin = async (req, res, next) => {
   }
 
   // Restrict Multiple Device Access
-  const allSessions = await Session.find({ userId: user._id });
-  if (allSessions.length == 2) {
+  const allSessions = await Session.find({ userId: user._id }).sort({
+    createdAt: 1,
+  });
+  if (allSessions.length >= 2) {
     await allSessions[0].deleteOne();
   }
 
@@ -101,6 +103,15 @@ export const userLogout = async (req, res) => {
   // });
   const { sid } = req.signedCookies;
   await Session.findByIdAndDelete(sid);
+  res.clearCookie("sid");
+
+  res.status(200).json({ msg: "Logged Out" });
+};
+
+export const userLogoutAll = async (req, res) => {
+  const { sid } = req.signedCookies;
+  const session = await Session.findById(sid);
+  await Session.deleteMany({ userId: session.userId });
   res.clearCookie("sid");
 
   res.status(200).json({ msg: "Logged Out" });

@@ -4,6 +4,7 @@ import {
   getUserInfo,
   userLogin,
   userLogout,
+  userLogoutAll,
   userRegister,
 } from "../controllers/userController.js";
 
@@ -19,6 +20,9 @@ router.post("/login", userLogin);
 router.get("/", checkAuth, getUserInfo);
 
 // User logout
-router.post("/logout", userLogout);
+router.post("/logout", checkAuth, userLogout);
+
+// User logout All
+router.post("/logout-all", checkAuth, userLogoutAll);
 
 export default router;
