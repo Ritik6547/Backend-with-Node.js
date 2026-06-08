@@ -17,6 +17,10 @@ export default async function checkAuth(req, res, next) {
 
   const user = await User.findById(session.userId).lean();
   if (!user) {
+    // Delete Orphaned Sessions
+    await Session.findByIdAndDelete(session._id);
+    res.clearCookie("sid");
+
     return res.status(401).json({ error: "Not Logged In" });
   }
 

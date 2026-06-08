@@ -1,14 +1,12 @@
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
 
 export const userRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
+  // Transaction Session
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
@@ -33,7 +31,7 @@ export const userRegister = async (req, res, next) => {
           _id: userId,
           name,
           email,
-          password: hashedPassword,
+          password,
           rootDirId,
         },
       ],
@@ -63,15 +61,15 @@ export const userRegister = async (req, res, next) => {
 export const userLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    return res.status(404).json({ error: "Invalid Credentials" });
+    return res.status(401).json({ error: "Invalid Credentials" });
   }
 
   const isValidPassword = await user.comparePassword(password);
   if (!isValidPassword) {
-    return res.status(404).json({ error: "Invalid Credentials" });
+    return res.status(401).json({ error: "Invalid Credentials" });
   }
 
   const session = await Session.create({ userId: user._id });
@@ -91,10 +89,12 @@ export const getUserInfo = (req, res) => {
   res.status(200).json({ name, email });
 };
 
-export const userLogout = (req, res) => {
+export const userLogout = async (req, res) => {
   // res.cookie("sid", "", {
   //   maxAge: 0,
   // });
+  const { sid } = req.signedCookies;
+  await Session.findByIdAndDelete(sid);
   res.clearCookie("sid");
 
   res.status(200).json({ msg: "Logged Out" });

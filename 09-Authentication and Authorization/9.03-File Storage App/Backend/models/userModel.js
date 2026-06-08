@@ -12,12 +12,13 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      match: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$/,
+      match: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
     },
     password: {
       type: String,
-      requited: true,
+      required: true,
       minLength: 3,
+      select: false, // hide password by default
     },
     rootDirId: {
       type: Schema.Types.ObjectId,
@@ -30,7 +31,14 @@ const userSchema = new Schema(
   },
 );
 
-// Password compare
+// Password Hashing
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+// Password Compare
 userSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
