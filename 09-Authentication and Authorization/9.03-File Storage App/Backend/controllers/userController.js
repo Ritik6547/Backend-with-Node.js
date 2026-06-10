@@ -2,9 +2,18 @@ import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
 import Session from "../models/sessionModel.js";
+import OTP from "../models/otpModel.js";
 
 export const userRegister = async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, otp } = req.body;
+
+  const otpData = await OTP.findOne({ email, otp });
+
+  if (!otpData) {
+    return res.status(401).json({ msg: "Invalid or Expired OTP" });
+  }
+
+  await otpData.deleteOne();
 
   // Transaction Session
   const session = await mongoose.startSession();
