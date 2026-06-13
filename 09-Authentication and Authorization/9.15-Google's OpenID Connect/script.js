@@ -11,7 +11,11 @@ button.addEventListener("click", (e) => {
   window.open(authUrl, "auth-popup", "left=150,top=180,width=420,height=420");
 });
 
-window.addEventListener("message", ({ data }) => {
+window.addEventListener("message", (e) => {
+  if (e.origin !== location.origin) {
+    return;
+  }
+  const { data } = e;
   console.log(data);
 
   if (data.code) {
@@ -23,7 +27,7 @@ if (window.name === "auth-popup") {
   const code = new URLSearchParams(location.search).get("code");
 
   if (code) {
-    window.opener.postMessage({ code });
+    window.opener.postMessage({ code }, location.origin);
     window.close();
   }
 }
