@@ -3,7 +3,7 @@ const button = document.querySelector("button");
 const client_id =
   "183518767383-qors1qe29inuoslplrsj7sr3sepajim3.apps.googleusercontent.com";
 const client_secret = "Client Secret";
-const URI = "http://localhost:5500";
+const URI = "http://localhost:5500/callback.html";
 const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${client_id}&scope=openid%20email%20profile&redirect_uri=${URI}`;
 
 button.addEventListener("click", (e) => {
@@ -22,15 +22,6 @@ window.addEventListener("message", (e) => {
     fetchIdToken(data.code);
   }
 });
-
-if (window.name === "auth-popup") {
-  const code = new URLSearchParams(location.search).get("code");
-
-  if (code) {
-    window.opener.postMessage({ code }, location.origin);
-    window.close();
-  }
-}
 
 const fetchIdToken = async (code) => {
   const payload = `code=${code}&client_id=${client_id}&client_secret=${client_secret}&redirect_uri=${URI}&grant_type=authorization_code`;
